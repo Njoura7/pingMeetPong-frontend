@@ -2,11 +2,11 @@
 
 import './App.css'
 import {BrowserRouter, Routes, Route, Navigate} from "react-router-dom"
-import Auth from './pages/Auth'
+import Register from './pages/Register';
+import Login from './pages/Login';
 import Dashboard from './pages/Dashboard'
 import { Provider } from 'react-redux';
 import { store } from './app/store'; // Import  Redux store
-
 
 import {ToastContainer} from 'react-toastify'
 import "react-toastify/dist/ReactToastify.css"
@@ -18,12 +18,13 @@ function App() {
       <BrowserRouter>
       <ToastContainer/>
 
-        <Routes>
-          <Route path="/" element={<Navigate to="/auth" replace/>}/>
-          <Route path="/auth" element={<Auth/>} />
-          <Route path="/dashboard" element={<Dashboard/>} />
-        </Routes>
-     
+      <Routes>
+        <Route path="/" element={<Navigate to="/register" replace/>}/>
+        <Route path="/register" element={<Register/>} />
+        <Route path="/login" element={<Login/>} />
+        <Route path="/dashboard" element={<Dashboard/>} />
+      </Routes>
+      
       </BrowserRouter>
       </Provider>
   )
