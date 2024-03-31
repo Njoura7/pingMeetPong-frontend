@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Tauri&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-family: "Tauri", sans-serif;
+    --background: 210, 15%, 15%;
+    --foreground: 210, 15%, 85%;
+
+    --card: 210, 15%, 20%;
+    --card-foreground: 210, 15%, 70%;
+
+    --popover: 210, 15%, 25%;
+    --popover-foreground: 210, 15%, 70%;
+
+    --primary: 210, 15%, 35%;
+    --primary-foreground: 210, 15%, 90%;
+
+    --secondary: 210, 15%, 30%;
+    --secondary-foreground: 210, 15%, 80%;
+
+    --muted: 210, 15%, 30%;
+    --muted-foreground: 210, 15%, 70%;
+
+    --accent: 210, 83%, 47%; /* bluish color */
+    --accent-foreground: 210, 15%, 70%;
+
+    --destructive: 210, 100%, 50%;
+    --destructive-foreground: 210, 15%, 70%;
+
+    --border: 210, 15%, 25%;
+    --input: 210, 15%, 25%;
+    --ring: 210, 15%, 20%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-family);
+  }
+  h1 {
+    font-size: 2em;
+    font-weight: bold;
+  }
+  
+  h2 {
+    font-size: 1.5em;
+    font-weight: normal;
+  }
+}
