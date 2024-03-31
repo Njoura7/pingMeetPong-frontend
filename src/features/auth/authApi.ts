@@ -3,13 +3,14 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 interface ServerResponse {
   message: string;
+  //! to be considered
   data: any;
 }
-
 
 interface Credentials {
   username: string;
   password: string;
+  avatar?: string;
 }
 
 
@@ -17,7 +18,7 @@ export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({
     baseUrl: 'http://localhost:7000/api',
-    prepareHeaders: (headers) => {
+  prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
       if (token) {
         headers.set('authorization', `Bearer ${token}`);

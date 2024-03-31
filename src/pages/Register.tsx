@@ -3,21 +3,13 @@ import { useRegisterUserMutation } from '../features/auth/authApi';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate,Link } from "react-router-dom";
-
-
-//components
+// components //
+import { AvatarSelectItems } from "../components/AvatarSelectItems";
 import { Button } from "@/components/ui/button"
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-
+import { Card } from "@/components/ui/card"
+import { Form,FormControl,FormDescription,FormField,FormItem,FormLabel,FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import {  Select, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from 'react-toastify';
 
 const formSchema = z.object({
@@ -28,12 +20,17 @@ const formSchema = z.object({
     message: "Password must be at least 5 characters.",
   }),
   confirmPassword: z.string(),
+  avatar: z.string().nonempty({
+    message: "Please select an avatar.",
+  
+  }),
 });
 
 interface FormValues {
   username: string;
   password: string;
   confirmPassword: string;
+  avatar: string;
 }
 
 export default function Register() {
@@ -43,6 +40,7 @@ export default function Register() {
       username: "",
       password: "",
       confirmPassword: "",
+      avatar: "",
     },
   });
 
@@ -50,6 +48,7 @@ export default function Register() {
   const navigate = useNavigate();
 
   const onSubmit = async (values: FormValues) => {
+    console.log(values);
     if (values.password !== values.confirmPassword) {
       toast.error("Passwords do not match",{
         theme: "colored"
@@ -63,6 +62,8 @@ export default function Register() {
         theme: "colored"
       });
       navigate("/login");
+
+        //! to be considered
     } catch (error:any) {
       // Display the error message from the server
       toast.error(error.data.message);
@@ -72,13 +73,15 @@ export default function Register() {
   return (
     <>
    <h2 className="py-8">Welcome to PING Meet PONG🌏🏓</h2>
-    <Form {...form}>
+   <Card className="w-full md:w-2/3 lg:w-2/3 xl:w-2/3 2xl:w-1/3 mx-auto py-4">
+   <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      
         <FormField
           control={form.control}
           name="username"
           render={({ field }) => (
-            <FormItem className="mx-8">
+            <FormItem className="mx-6">
               <FormLabel>Username</FormLabel>
               <FormControl>
                 <Input placeholder="Enter your Username" {...field} autoComplete="username"/>
@@ -94,7 +97,7 @@ export default function Register() {
           control={form.control}
           name="password"
           render={({ field }) => (
-            <FormItem className="mx-8">
+            <FormItem className="mx-6">
               <FormLabel>Password</FormLabel>
               <FormControl>
                 <Input type="password" placeholder="Enter your Password" {...field} autoComplete="current-password"/>
@@ -110,7 +113,7 @@ export default function Register() {
           control={form.control}
           name="confirmPassword"
           render={({ field }) => (
-            <FormItem className="mx-8">
+            <FormItem className="mx-6">
               <FormLabel>Confirm Password</FormLabel>
               <FormControl>
                 <Input type="password" placeholder="Confirm your Password" {...field} autoComplete="new-password" />
@@ -122,14 +125,41 @@ export default function Register() {
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="avatar"
+          render={({ field }) => (
+            <FormItem className="w-[175px] my-8 mx-auto">
+              <FormLabel>Avatar</FormLabel>
+              <Select onValueChange={(value) => {
+                console.log(value)
+                field.onChange(value)}} 
+                defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your avatar" />
+                      </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <AvatarSelectItems />
+                  </SelectContent>
+              </Select>
+              <FormDescription>
+                Choose your avatar 
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <Button className="my-5" type="submit">
           Register
         </Button> 
-            <Button variant="ghost">
+            <Button variant="secondary">
                 <Link to="/login">Have an account?</Link>
             </Button>
       </form>
     </Form>
+   </Card>
     </>
   );
 }

@@ -6,33 +6,33 @@
 @layer base {
   :root {
     --font-family: "Tauri", sans-serif;
-    --background: 210, 20%, 10%;
-    --foreground:209, 63%, 90%;
+    --background: 210, 15%, 15%;
+    --foreground: 210, 15%, 85%;
 
-    --card: 210, 20%, 15%;
-    --card-foreground: 210, 20%, 70%;
+    --card: 210, 15%, 20%;
+    --card-foreground: 210, 15%, 70%;
 
-    --popover: 210, 20%, 15%;
-    --popover-foreground: 210, 20%, 70%;
+    --popover: 210, 15%, 25%;
+    --popover-foreground: 210, 15%, 70%;
 
-    --primary:210, 62%, 35%;
-    --primary-foreground:209, 61%, 86%;
+    --primary: 210, 15%, 35%;
+    --primary-foreground: 210, 15%, 90%;
 
-    --secondary: 210, 50%, 30%;
-    --secondary-foreground: 210, 20%, 70%;
+    --secondary: 210, 15%, 30%;
+    --secondary-foreground: 210, 15%, 80%;
 
-    --muted: 210, 50%, 30%;
-    --muted-foreground: 210, 20%, 70%;
+    --muted: 210, 15%, 30%;
+    --muted-foreground: 210, 15%, 70%;
 
-    --accent: 210, 100%, 50%;
-    --accent-foreground: 210, 20%, 70%;
+    --accent: 210, 83%, 47%; /* bluish color */
+    --accent-foreground: 210, 15%, 70%;
 
-    --destructive: 0, 100%, 50%;
-    --destructive-foreground: 210, 20%, 70%;
+    --destructive: 210, 100%, 50%;
+    --destructive-foreground: 210, 15%, 70%;
 
-    --border: 210, 30%, 20%;
-    --input: 210, 30%, 20%;
-    --ring: 210, 20%, 15%;
+    --border: 210, 15%, 25%;
+    --input: 210, 15%, 25%;
+    --ring: 210, 15%, 20%;
   }
 }
 

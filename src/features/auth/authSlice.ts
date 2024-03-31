@@ -7,18 +7,29 @@ interface ServerResponse {
   message: string;
   data: {
     user?: string;
+    username?: string;
     accessToken?: string;
+    avatar?: string;
   };
 }
-
+const initialState = {
+  user: localStorage.getItem('user'),
+  username: localStorage.getItem('username'),
+  token: localStorage.getItem('token'),
+  avatar: localStorage.getItem('avatar'),
+};
 const authSlice = createSlice({
   name: 'auth',
-  initialState: { user: null as string | null, token: null as string | null },
+  initialState,
   reducers: {
     logOut: (state) => {
       state.user = null;
+      state.username = null;
       state.token = null;
-      localStorage.removeItem('token'); // Remove the token from local storage
+      state.avatar = null;
+      // localStorage.removeItem('token'); // Remove the token from local storage
+      localStorage.clear(); // Clear all items from local storage
+
     },
   },
   extraReducers: (builder) => {
@@ -26,18 +37,31 @@ const authSlice = createSlice({
     // ? and user will be directed to the '/login' route 
 
     // ? ignoring the state parameter('_') as we are not using it in the register process
-    builder.addMatcher(authApi.endpoints.registerUser.matchFulfilled, (state, { payload }: { payload: ServerResponse }) => {
+      builder.addMatcher(authApi.endpoints.registerUser.matchFulfilled, (state, { payload }: { payload: ServerResponse }) => {
       console.log('Message', payload);  // Log the message
-    // Handle the data (if any)
+    // // Handle the data (if any)
     })
     builder.addMatcher(authApi.endpoints.loginUser.matchFulfilled, (state, { payload }: { payload: ServerResponse }) => {
       // console.log('Message', payload);  // Log the message
       if (payload.data) {
-        state.user = payload.data.user ?? null;
-        state.token = payload.data.accessToken ?? null;
-        if (payload.data.accessToken) {
-          localStorage.setItem('token', payload.data.accessToken); // Store the token in local storage
-        }
+          const { user, username, accessToken, avatar } = payload.data;
+          state.user = user ?? null;
+          state.username = username ?? null;
+          state.token = accessToken ?? null;
+          state.avatar = avatar ?? null;
+        
+          if (accessToken) {
+            localStorage.setItem('token', accessToken);
+          }
+          if (user) {
+            localStorage.setItem('user', user);
+          }
+          if (username) {
+            localStorage.setItem('username', username);
+          }
+          if (avatar) {
+            localStorage.setItem('avatar', avatar);
+          }
       }
     });
   },
@@ -45,7 +69,13 @@ const authSlice = createSlice({
 
 export const { logOut } = authSlice.actions;
 
-export const selectCurrentUsers = (state: RootState) => state.auth.user;
-export const selectCurrentToken = (state: RootState) => state.auth.token;
+// save the state of the user, username, token, and avatar in the store and use it later
+// in the components(we can select just the ones we need in the component)
+export const selectCurrentUser = (state: RootState) => ({
+  user: state.auth.user,
+  username: state.auth.username,
+  token: state.auth.token,
+  avatar: state.auth.avatar,
+});
 
 export default authSlice.reducer; // Export authSlice reducer
