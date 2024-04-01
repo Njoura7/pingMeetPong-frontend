@@ -1,4 +1,5 @@
 import { useForm } from "react-hook-form";
+import { useCreateMatchMutation } from '../features/matches/matchesApi'
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { DatePicker } from "./DatePicker";
@@ -15,6 +16,9 @@ import {
 import { Form,FormControl,FormDescription,FormField,FormItem,FormLabel,FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button"; 
+import { toast } from 'react-toastify';
+
+
 
 const matchFormSchema = z.object({
     name: z.string().min(5, {
@@ -26,7 +30,9 @@ const matchFormSchema = z.object({
     place: z.string().min(5, {
       message: "Place must be at least 5 characters.",
     }),
-    date: z.date(),
+    date: z.date().min(new Date(),{ 
+        message: "Please select a date in the future." ,
+    }),
   });
   
   interface MatchFormValues {
@@ -46,6 +52,25 @@ export function CreateMatchDialog() {
           date: new Date(),
         },
       });
+      const[createMatch] = useCreateMatchMutation();
+      const onSubmit = async (values: MatchFormValues) => {
+        console.log(values);
+        
+        try {
+          const result = await createMatch(values).unwrap();
+          console.log(result)
+          // Display the success message from the server
+          toast.success(result.message, {
+            theme: "colored"
+          });
+    
+            //! to be considered
+        } catch (error:any) {
+          // Display the error message from the server
+          toast.error(error.data.message);
+          // console.log(error.data)
+        }
+      };
     return (
         <Dialog>
             <DialogTrigger asChild>
@@ -61,7 +86,7 @@ export function CreateMatchDialog() {
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
-                    <form  className="space-y-8">
+                    <form  onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                         <FormField
                         control={form.control}
                         name="name"
@@ -110,26 +135,28 @@ export function CreateMatchDialog() {
                             </FormItem>
                         )}
                         />
+
+
                         <FormField
                         control={form.control}
                         name="date"
-                        render={({ field }) => (
+                        render={({ field }) =>( 
                             <FormItem className="mx-6">
-                            <FormLabel className="mx-4">Match date</FormLabel>
-                            <FormControl>
-                                <DatePicker {...field} />
-                            </FormControl>
+                            <FormLabel className="mx-6">Match date</FormLabel>
+                            <DatePicker  field={field} />
                             <FormDescription>
-                                Choose your match date.
+                                This is your match date.
                             </FormDescription>
                             <FormMessage />
                             </FormItem>
                         )}
                         />
+
+
+                    <Button type="submit">Save changes</Button>
                     </form>
                  </Form>
                 <DialogFooter>
-                    <Button type="submit">Save changes</Button>
                 <DialogClose asChild>
                     <Button type="button" variant="secondary">
                         Close
