@@ -9,7 +9,7 @@ interface Match {
 
 interface ServerResponse {
   message: string;
-  data: Match;
+  data: Match[];
 }
 
 export const matchesApi = createApi({
@@ -33,8 +33,10 @@ export const matchesApi = createApi({
       }),
       transformResponse: (response: ServerResponse) => response,
     }),
-    // Add more endpoints here as needed
+    findMatchesByPlayer: builder.query<ServerResponse, string>({
+      query: (playerId) => `/matches/player/${playerId}`,
+    }),
   }),
 });
 
-export const { useCreateMatchMutation } = matchesApi;
+export const { useCreateMatchMutation, useFindMatchesByPlayerQuery } = matchesApi;

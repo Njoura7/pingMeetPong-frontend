@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from "react-router-dom";
 import { logOut, selectCurrentUser  } from '../features/auth/authSlice' // replace with the path to your auth slice
 import { CreateMatchDialog } from '../components/CreateMatchDialog';
+import DisplayMatches from '../components/DisplayMatches'
 // shadcn componenets
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -21,6 +22,9 @@ const Dashboard = () => {
   if (!username) {
     navigate("/login"); // or redirect to login page, or any other component you want to show while user is null
   }
+
+  const { user: userId } = useSelector(selectCurrentUser);
+
 
   return (
 <div className="flex flex-col h-screen">
@@ -53,12 +57,13 @@ const Dashboard = () => {
   <Card className="w-1/4 mx-4 bg-gray-800 hover:bg-gray-600 shadow-md 
                  rounded px-4 pt-4 pb-4 mb-4 flex items-center cursor-pointer">
     <div className="text-gray-200 text-lg">Matches</div> 
+    <DisplayMatches playerId={userId} />
   </Card>
 
   <div className="flex flex-col items-center">
 
-
-  <CreateMatchDialog />
+    {/* Create Match component:Button+Modal+Logic */}
+    <CreateMatchDialog />
 
     <Button className="font-bold py-2 px-4 rounded">
       Join Match
