@@ -1,46 +1,67 @@
-import React from 'react';
 import { useFindMatchesByPlayerQuery } from '../features/matches/matchesApi';
+import { Match } from '@/types';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableHead,
+  TableHeader,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
 
 // Define the props type
 interface DisplayMatchesProps {
-    playerId: string | null; // Allow playerId to be null
+  //todo to be reviewed 
+  playerId: string; 
 }
 
-interface Match {
-  _id?: string;
-  name: string;
-  place: string;
-  date: Date;
-}
 
-const DisplayMatches: React.FC<DisplayMatchesProps> = ({ playerId }) => {
-  const { data: matches } = useFindMatchesByPlayerQuery(playerId || '', { skip: !playerId }); // Skip the query if playerId is null
 
-  // If playerId is null, return a message
-  if (!playerId) {
-    return <div>No matches available because no user ID is provided.</div>;
-  }
+const DisplayMatches = ({ playerId }: DisplayMatchesProps) => {
+  const { data: matches } = useFindMatchesByPlayerQuery(playerId || '');
 
   if (!matches) {
     return <div>Loading...</div>;
   }
 
+// Create a copy of matches.data and sort it
+  const sortedMatches = [...matches.data].sort((a: Match, b: Match) => {
+    const dateA = a.date instanceof Date ? a.date : new Date(a.date);
+    const dateB = b.date instanceof Date ? b.date : new Date(b.date);
+    return dateB.getTime() - dateA.getTime();
+  });
+
   return (
-    <div className="flex flex-col items-center">
-   
-  {matches.data.map((match: Match) => {
-      const date = match.date instanceof Date ? match.date : new Date(match.date);
-      return (
-        <div key={match._id || ''} className="w-full flex justify-center cursor-pointer">
-          <div className="w-4/5 border border-gray-300 p-4 m-2">
-            <h2 className="text-xl font-semibold">{match.name}</h2>
-            <p className="text-gray-900">{match.place}</p>
-            <p className="text-gray-900">{date.toLocaleDateString()}</p>
-          </div>
-        </div>
-        );
-  })}
+    <ScrollArea className="h-80 w-full rounded-md border">
+    <div className="p-4">
+      <Table>
+        <TableCaption>Your Matches</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[100px]">Name</TableHead>
+            <TableHead>Code</TableHead>
+            <TableHead>Place</TableHead>
+            <TableHead>Date</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {sortedMatches.map((match: Match) => {
+            const date = match.date instanceof Date ? match.date : new Date(match.date);
+            return (
+              <TableRow key={match._id || ''}>
+                <TableCell className="font-medium">{match.name}</TableCell>
+                <TableCell>{match.code}</TableCell>
+                <TableCell>{match.place}</TableCell>
+                <TableCell className="text-right">{date.toLocaleDateString()}</TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
     </div>
+  </ScrollArea>
   );
 };
 

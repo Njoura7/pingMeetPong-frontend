@@ -6,6 +6,7 @@ import { useNavigate,Link } from "react-router-dom";
 
 
 //components
+import { Card } from "@/components/ui/card"
 import { Button  } from "@/components/ui/button"
 import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form"
 
@@ -54,6 +55,9 @@ export default function Login() {
   };
 
   return (
+    <>
+    <h2 className="py-8">Sign in to join PINGMeetPONGERS🌏🏓</h2>
+    <Card className="w-full md:w-2/3 lg:w-2/3 xl:w-2/3 2xl:w-1/3 mx-auto py-4">
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
@@ -96,5 +100,7 @@ export default function Login() {
             </Button>
       </form>
     </Form>
+    </Card>
+     </>
   );
 }

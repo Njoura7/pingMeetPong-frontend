@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
 import { useCreateMatchMutation } from '../features/matches/matchesApi'
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { DatePicker } from "./DatePicker";
@@ -24,9 +25,6 @@ const matchFormSchema = z.object({
     name: z.string().min(5, {
       message: "Name must be at least 5 characters.",
     }),
-    code: z.string().min(4, {
-      message: "Code must be at least 4 characters.",
-    }),
     place: z.string().min(5, {
       message: "Place must be at least 5 characters.",
     }),
@@ -37,7 +35,6 @@ const matchFormSchema = z.object({
   
   interface MatchFormValues {
     name: string;
-    code: string;
     place: string;
     date: Date;
   }
@@ -47,19 +44,18 @@ export function CreateMatchDialog() {
         resolver: zodResolver(matchFormSchema),
         defaultValues: {
           name: "",
-          code: "",
           place: "",
           date: new Date(),
         },
       });
       const[createMatch] = useCreateMatchMutation();
+   
       const onSubmit = async (values: MatchFormValues) => {
-        console.log(values);
         
         try {
           const result = await createMatch(values).unwrap();
-          console.log(result)
           // Display the success message from the server
+          console.log("CREATED",result);
           toast.success(result.message, {
             theme: "colored"
           });
@@ -68,7 +64,7 @@ export function CreateMatchDialog() {
         } catch (error:any) {
           // Display the error message from the server
           toast.error(error.data.message);
-          // console.log(error.data)
+          console.log(error.data)
         }
       };
     return (
@@ -98,22 +94,6 @@ export function CreateMatchDialog() {
                             </FormControl>
                             <FormDescription>
                                 This is your public match display name.
-                            </FormDescription>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                        />
-                        <FormField
-                        control={form.control}
-                        name="code"
-                        render={({ field }) => (
-                            <FormItem className="mx-6">
-                            <FormLabel>Match code</FormLabel>
-                            <FormControl>
-                                <Input placeholder="Enter the match code" {...field} autoComplete="code"/>
-                            </FormControl>
-                            <FormDescription>
-                                This is your match code .
                             </FormDescription>
                             <FormMessage />
                             </FormItem>
