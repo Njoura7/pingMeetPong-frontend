@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { RootState } from '../../app/store';
-import { authApi } from '../auth/authApi'; // Import authApi
+import { authApi } from './authApi'; // Import authApi
 
 
 interface ServerResponse {
@@ -37,10 +37,11 @@ const authSlice = createSlice({
     // ? and user will be directed to the '/login' route 
 
     // ? ignoring the state parameter('_') as we are not using it in the register process
-      builder.addMatcher(authApi.endpoints.registerUser.matchFulfilled, (state, { payload }: { payload: ServerResponse }) => {
-      console.log('Message', payload);  // Log the message
-    // // Handle the data (if any)
-    })
+      // builder.addMatcher(authApi.endpoints.registerUser.matchFulfilled, (state, { payload }: { payload: ServerResponse }) => {
+      // console.log('Message', payload);  // Log the message
+      // // Handle the data (if any)
+      // })
+
     builder.addMatcher(authApi.endpoints.loginUser.matchFulfilled, (state, { payload }: { payload: ServerResponse }) => {
       // console.log('Message', payload);  // Log the message
       if (payload.data) {

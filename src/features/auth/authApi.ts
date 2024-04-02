@@ -17,7 +17,7 @@ interface Credentials {
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:7000/api',
+    baseUrl: 'http://localhost:7000/api/auth',
   prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
       if (token) {
