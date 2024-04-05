@@ -5,9 +5,14 @@ import { matchesApi } from './matchesApi'; // Import matchesApi
 import { Match } from '@/types';
 
 
-interface ServerResponse {
+interface FindMatchesServerResponse {
   message: string;
   data: Match[];
+}
+
+interface JoinMatchServerResponse {
+  message: string;
+  data: Match;
 }
 
 const initialState = {
@@ -19,17 +24,18 @@ const matchesSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addMatcher(matchesApi.endpoints.findMatchesByPlayer.matchFulfilled, (state, { payload }: { payload: ServerResponse }) => {
+    builder.addMatcher(matchesApi.endpoints.findMatchesByPlayer.matchFulfilled, (state, { payload }: { payload: FindMatchesServerResponse }) => {
       if (payload.data) {
         state.matches = payload.data;
       }
     });
-    builder.addMatcher(matchesApi.endpoints.joinMatch.matchFulfilled, (state, { payload }: { payload: Match }) => {
+    // !~ to be considered
+    builder.addMatcher(matchesApi.endpoints.joinMatch.matchFulfilled, (state, { payload }: { payload: JoinMatchServerResponse }) => {
       // Find the index of the joined match in the state
-      const index = state.matches.findIndex((match) => match.code === payload.code);
+      const index = state.matches.findIndex((match) => match.code === payload.data.code);
       if (index !== -1) {
         // Update the match in the state
-        state.matches[index] = payload;
+        state.matches[index] = payload.data;
       }
     });
   },

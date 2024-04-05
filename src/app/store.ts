@@ -1,21 +1,33 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "../features/auth/authSlice";
-import { authApi } from "../features/auth/authApi";
+
+// ? using auth/index.ts fro better practice and less code
+import { authReducer, authApi } from "../features/auth";
+
 import matchesReducer from "../features/matches/matchesSlice"; // Import matchesSlice
 import { matchesApi } from "../features/matches/matchesApi"; // Import matchesApi
+
+import usersReducer from '../features/users/usersSlice';  
+import { usersApi } from '../features/users/usersApi';
+
+import invitationsReducer from '../features/invitations/invitationsSlice';
+import { invitationsApi } from '../features/invitations/invitationsApi';
 
 export const store = configureStore({
   reducer: {
     [authApi.reducerPath]: authApi.reducer,
     auth: authReducer,
-    matches: matchesReducer, // Add matchesSlice to the reducer
     [matchesApi.reducerPath]: matchesApi.reducer, // Add matchesApi reducer
+    matches: matchesReducer, // Add matchesSlice to the reducer
+    [usersApi.reducerPath]: usersApi.reducer, 
+    users: usersReducer,
+    [invitationsApi.reducerPath]: invitationsApi.reducer, 
+    invitations: invitationsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
       immutableCheck: false,
-    }).concat(authApi.middleware, matchesApi.middleware), // Add matchesApi middleware
+    }).concat(authApi.middleware, matchesApi.middleware, usersApi.middleware,invitationsApi.middleware), // Add  middlewares after creating the apis and slices
 });
 
 export type RootState = ReturnType<typeof store.getState>;

@@ -43,7 +43,9 @@ export default function Login() {
     try {
       const result = await loginUser(values).unwrap();
       toast.success(result.message, {
-        theme: "dark"
+        position: "top-center",
+        draggable: true,
+        theme: "dark",
       });
       navigate("/dashboard");
  

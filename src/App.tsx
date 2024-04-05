@@ -2,9 +2,12 @@
 
 import './App.css'
 import {BrowserRouter, Routes, Route, Navigate} from "react-router-dom"
+//pages
 import Register from './pages/Register';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard'
+import UserProfile from './pages/UserProfile';
+
 import { Provider } from 'react-redux';
 import { store } from './app/store'; // Import  Redux store
 
@@ -23,6 +26,7 @@ function App() {
         <Route path="/register" element={<Register/>} />
         <Route path="/login" element={<Login/>} />
         <Route path="/dashboard" element={<Dashboard/>} />
+        <Route path="/profile/:userId" element={<UserProfile />} />
       </Routes>
       
       </BrowserRouter>
