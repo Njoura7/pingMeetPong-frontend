@@ -1,32 +1,46 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../../app/store';
 import { invitationsApi } from './invitationsApi'; 
+import { User } from '@/types';
 
 interface SendInvitationServerResponse {
-  message: string;  
-  data: string[] | null; // Update this to match the shape of your data
+  message: string;
+  sender?: User;
+}
+
+interface GetInvitationsServerResponse {
+  message: string;
+  data?: User[];
 }
 
 const initialState = {
-  invitations: [] as string[], // Update this to match the shape of your invitations
+  invitations: [] as User[], 
 };
 
 const invitationsSlice = createSlice({
   name: 'invitations',
   initialState,
-  reducers: {},
+  reducers: {
+    addInvitation: (state, action: PayloadAction<User>) => {
+      state.invitations.push(action.payload);
+    },
+  },
   extraReducers: (builder) => {
     builder.addMatcher(invitationsApi.endpoints.sendInvitation.matchFulfilled, (state, { payload }: { payload: SendInvitationServerResponse }) => {
-      // Update the state with the updated pending requests
+      if (payload.sender) {
+        state.invitations.push(payload.sender);
+      }
+    });
+    builder.addMatcher(invitationsApi.endpoints.getInvitations.matchFulfilled, (state, { payload }: { payload: GetInvitationsServerResponse }) => {
       if (payload.data) {
         state.invitations = payload.data;
       }
     });
-    // Add more matchers here as needed
   },
 });
 
-// Select the invitations from the store
+export const { addInvitation } = invitationsSlice.actions;
+
 export const selectInvitations = (state: RootState) => state.invitations.invitations;
 
-export default invitationsSlice.reducer; // Export invitationsSlice reducer
+export default invitationsSlice.reducer;

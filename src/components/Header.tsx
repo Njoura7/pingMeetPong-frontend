@@ -1,72 +1,94 @@
+import { useContext, useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { addInvitation } from '../features/invitations/invitationsSlice';
+
+import SocketContext from '../SocketContext';
 import { CreateMatchDialog } from './CreateMatchDialog';
 import { JoinMatchDialog } from './JoinMatchDialog';
-
-import {  selectCurrentUser  } from '../features/auth/authSlice' 
-import { useSelector, useDispatch } from 'react-redux'
-import { useNavigate } from "react-router-dom";
-import { logOut  } from '../features/auth/authSlice' 
+import { ProfileButton } from './ProfileButton';
+import { LogoutButton } from './LogoutButton';
 
 import  NotifSvg  from '../svgs/NotifSvg';
 
-//shadcn components 
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import {  Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
+// Define the type of the notification data
+interface NotificationData {
+  senderId: string;
+  senderUsername: string;
+  senderAvatar: string;
+}
 
 const Header = () => {
-    const dispatch = useDispatch()
-    const { user,username, avatar } = useSelector(selectCurrentUser);
-    const handleLogout = () => {
-      dispatch(logOut())
-    }
-    const navigate = useNavigate();
-    if (!username) {  
-      navigate("/login"); 
-    }
-    const handleProfileClick = () => {
-      if ( user) {
-        navigate(`/profile/${user}`);
-      } else {
-        console.error('User or user ID is undefined');
+  const dispatch = useDispatch();
+  const socket = useContext(SocketContext);
+  // Define the type of notification when declaring it with useState
+  const [notification, setNotification] = useState<NotificationData | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  
+    
+    useEffect(() => {
+      if (socket) {
+        socket.on('newNotification', (notificationData: NotificationData) => {
+          // Check if senderId, recipientId, senderUsername, and senderAvatar are present in notificationData
+          if (
+            'senderId' in notificationData && typeof notificationData.senderId === 'string' &&
+            'senderUsername' in notificationData && typeof notificationData.senderUsername === 'string' &&
+            'senderAvatar' in notificationData && typeof notificationData.senderAvatar === 'string'
+          ) {
+            
+            // Dispatch the action to add the new invitation to the state
+            dispatch(addInvitation({
+              _id: notificationData.senderId,
+              username: notificationData.senderUsername,
+              avatar: notificationData.senderAvatar
+            }));
+    
+            // Set the notification data in state
+            setNotification(notificationData);
+            console.log('New notification received. Notification data:', notificationData);
+          }
+        });
       }
-    };
+    }, [socket, dispatch]);
+
+  const handleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
+
+  // Rest of your component
   return (
     <>
         <header className="p-4 text-white flex flex-col lg:flex-row justify-between items-center">
-
     <div className="flex flex-col lg:flex-row items-center">
-        <div className="font-bold text-xl w-24 h-24 flex items-center justify-center mb-4 lg:mb-0 lg:mr-4">
+      <div className="font-bold text-xl w-24 h-24 flex items-center justify-center mb-4 lg:mb-0 lg:mr-4">
         <img className="w-full h-full object-cover" src="/public/pingMeetpong-logo.png" alt="Logo" /> 
+        <div className="relative mb-4 lg:mb-0" onClick={handleDropdown}>
+          <div className="relative">
+            <NotifSvg />
+            {notification && <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>}
+          </div>
+          {dropdownOpen && notification && (
+            <div className="absolute top-0 mt-12 right-0 bg-white text-black shadow-lg rounded py-2 w-64">
+              <div className="px-4 py-2">
+                <img src={notification.senderAvatar} alt="Avatar" className="w-8 h-8 rounded-full mr-3" />
+                <p>You have a new friend request from {notification.senderUsername}</p>
+              </div>
+            </div>
+          )}
         </div>
-        <NotifSvg className="mb-4 lg:mb-0" />
+      </div>
     </div>
 
     <div className="flex flex-col lg:flex-row items-center">
-        <div className="mb-4 lg:mb-0 lg:mr-4">
+      
         <CreateMatchDialog />
-        </div>
-        <div className="mb-4 lg:mb-0 lg:mr-4">
         <JoinMatchDialog />
-        </div>
-        <Card onClick={handleProfileClick}
-            className="max-w-xs mx-4 bg-gray-800 hover:bg-gray-600 shadow-md 
-                    rounded px-4 pt-4 pb-4 mb-4 lg:mb-0 lg:mx-0 flex items-center cursor-pointer">
-        <Avatar className="w-8 h-8 rounded-full">
-            <AvatarImage src={avatar||undefined} alt="avatar" className="w-full h-full object-cover rounded-full" />
-            <AvatarFallback className="w-full h-full object-cover rounded-full bg-gray-700 text-gray-300">X</AvatarFallback>
-        </Avatar>
-        <div className="ml-2 text-gray-200 text-lg">{username}</div> 
-        </Card>
-        <Button 
-        onClick={handleLogout} 
-        variant="destructive"
-        className="font-bold py-2 px-4 rounded">
-        Logout
-        </Button>
-    </div>
+         <ProfileButton/>
+          <LogoutButton/>
 
-        </header>
+    </div>
+        </header>  
     </>
   )
 }

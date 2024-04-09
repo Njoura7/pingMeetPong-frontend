@@ -27,20 +27,11 @@ const authSlice = createSlice({
       state.username = null;
       state.token = null;
       state.avatar = null;
-      // localStorage.removeItem('token'); // Remove the token from local storage
       localStorage.clear(); // Clear all items from local storage
 
     },
   },
   extraReducers: (builder) => {
-    // ? we dont need to track any state changes for the registerUser endpoint since the credentials will be stored in the db,
-    // ? and user will be directed to the '/login' route 
-
-    // ? ignoring the state parameter('_') as we are not using it in the register process
-      // builder.addMatcher(authApi.endpoints.registerUser.matchFulfilled, (state, { payload }: { payload: ServerResponse }) => {
-      // console.log('Message', payload);  // Log the message
-      // // Handle the data (if any)
-      // })
 
     builder.addMatcher(authApi.endpoints.loginUser.matchFulfilled, (state, { payload }: { payload: ServerResponse }) => {
       // console.log('Message', payload);  // Log the message

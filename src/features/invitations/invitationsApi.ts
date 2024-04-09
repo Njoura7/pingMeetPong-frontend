@@ -1,8 +1,12 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { User } from '@/types';
 
 interface ServerResponse {
   message: string;
-  data: null;
+  //for the send invitation
+  sender?: User;
+  //for getting invitations
+  data?: User[];
 }
 
 export const invitationsApi = createApi({
@@ -27,9 +31,13 @@ export const invitationsApi = createApi({
       transformResponse: (response: ServerResponse) => response,
       invalidatesTags: [{ type: 'Invitations', id: 'LIST' }],
     }),
+    getInvitations: builder.query<ServerResponse, string>({
+      query: (userId) => `/${userId}`,
+      transformResponse: (response: ServerResponse) => response,
+    }),
     // Add more endpoints here as needed
   }),
   tagTypes: ['Invitations']
 });
 
-export const { useSendInvitationMutation } = invitationsApi;
+export const { useSendInvitationMutation, useGetInvitationsQuery } = invitationsApi;

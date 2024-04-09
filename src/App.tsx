@@ -9,28 +9,30 @@ import Dashboard from './pages/Dashboard'
 import UserProfile from './pages/UserProfile';
 
 import { Provider } from 'react-redux';
-import { store } from './app/store'; // Import  Redux store
+import { store } from './app/store'; 
+
 
 import {ToastContainer} from 'react-toastify'
 import "react-toastify/dist/ReactToastify.css"
 
 function App() {
 
-  return (
-    <Provider store={store}>
-      <BrowserRouter>
-      <ToastContainer/>
 
-      <Routes>
-        <Route path="/" element={<Navigate to="/register" replace/>}/>
-        <Route path="/register" element={<Register/>} />
-        <Route path="/login" element={<Login/>} />
-        <Route path="/dashboard" element={<Dashboard/>} />
-        <Route path="/profile/:userId" element={<UserProfile />} />
-      </Routes>
-      
-      </BrowserRouter>
-      </Provider>
+
+  return (
+
+    <Provider store={store}>
+    <BrowserRouter>
+      <ToastContainer/>
+        <Routes>
+          <Route path="/" element={<Navigate to="/register" replace/>}/>
+          <Route path="/register" element={<Register/>} />
+          <Route path="/login" element={<Login/>} />
+          <Route path="/dashboard" element={<Dashboard/>} />
+          <Route path="/profile/:userId" element={<UserProfile />} />
+        </Routes>
+    </BrowserRouter>
+  </Provider>
   )
 }
 

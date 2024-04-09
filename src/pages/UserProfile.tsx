@@ -14,16 +14,16 @@ const UserProfile = () => {
   const userIdOrCurrentUser = userId || currentUser.user;
 
   const { data: user, isError, isLoading } = useGetUserByIdQuery(userIdOrCurrentUser || '');
-  console.log('UserProfile', { userIdOrCurrentUser, user, isError, isLoading });
   const [sendInvitation, { isLoading: isSending }] = useSendInvitationMutation();
 
   const handleSendInvitation = async () => {
     if (user) {
       try {
         const response = await sendInvitation({ senderId: currentUser.user||'', recipientId: userId||'' }).unwrap();
+        console.log('Response:', response); // Log the response
         alert(response.message);
-        console.log(response);
       } catch (error) {
+        console.error("Error sending invitation:", error);
         const typedError = error as any;
         if (typedError.data) {
           alert(typedError.data.message);

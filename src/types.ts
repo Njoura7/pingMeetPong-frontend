@@ -10,4 +10,5 @@ export interface Match {
     _id: string;
     username: string;
     avatar: string;
+    friends?: string[];
   }

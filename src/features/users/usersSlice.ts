@@ -1,13 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { RootState } from '../../app/store';
-import { usersApi } from './usersApi'; // Import usersApi
+import { usersApi } from './usersApi'; 
 
-import { User } from '@/types'; // replace with the path to your User type
+import { User } from '@/types'; 
 
 interface ServerResponse {
   message: string;
   data: User;
 }
+
 
 const initialState = {
   user: null as User | null,
@@ -29,4 +30,4 @@ const usersSlice = createSlice({
 // Select the user from the store
 export const selectUser = (state: RootState) => state.users.user;
 
-export default usersSlice.reducer; // Export usersSlice reducer
+export default usersSlice.reducer;
