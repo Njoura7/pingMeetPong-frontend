@@ -22,14 +22,19 @@ const invitationsSlice = createSlice({
   initialState,
   reducers: {
     addInvitation: (state, action: PayloadAction<User>) => {
-      state.invitations.push(action.payload);
+       // Check if the invitations array already contains the new invitation
+      // ? to be tested
+       if (!state.invitations.some(invitation => invitation._id === action.payload._id)) {
+      // If it doesn't, add the new invitation at the beginning of the array
+      state.invitations.unshift(action.payload);
+    }
     },
   },
   extraReducers: (builder) => {
     builder.addMatcher(invitationsApi.endpoints.sendInvitation.matchFulfilled, (state, { payload }: { payload: SendInvitationServerResponse }) => {
-      if (payload.sender) {
-        state.invitations.push(payload.sender);
-      }
+      // if (payload.sender) {
+      //   state.invitations.unshift(payload.sender);
+      // }
     });
     builder.addMatcher(invitationsApi.endpoints.getInvitations.matchFulfilled, (state, { payload }: { payload: GetInvitationsServerResponse }) => {
       if (payload.data) {

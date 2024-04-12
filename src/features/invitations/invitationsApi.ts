@@ -12,7 +12,7 @@ interface ServerResponse {
 export const invitationsApi = createApi({
   reducerPath: 'invitationsApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:7000/api/invitations', // Update the base URL to your invitations API endpoint
+    baseUrl: 'http://localhost:7000/api/invitations', 
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
       if (token) {
@@ -35,7 +35,6 @@ export const invitationsApi = createApi({
       query: (userId) => `/${userId}`,
       transformResponse: (response: ServerResponse) => response,
     }),
-    // Add more endpoints here as needed
   }),
   tagTypes: ['Invitations']
 });
