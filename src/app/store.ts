@@ -12,6 +12,11 @@ import { usersApi } from '../features/users/usersApi';
 import invitationsReducer from '../features/invitations/invitationsSlice';
 import { invitationsApi } from '../features/invitations/invitationsApi';
 
+
+import searchReducer from '../features/search/searchSlice';
+import { searchApi } from '../features/search/searchApi';
+
+
 export const store = configureStore({
   reducer: {
     [authApi.reducerPath]: authApi.reducer,
@@ -20,14 +25,18 @@ export const store = configureStore({
     matches: matchesReducer, // Add matchesSlice to the reducer
     [usersApi.reducerPath]: usersApi.reducer, 
     users: usersReducer,
+
     [invitationsApi.reducerPath]: invitationsApi.reducer, 
     invitations: invitationsReducer,
+
+    [searchApi.reducerPath]: searchApi.reducer,
+    search: searchReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
       immutableCheck: false,
-    }).concat(authApi.middleware, matchesApi.middleware, usersApi.middleware,invitationsApi.middleware), // Add  middlewares after creating the apis and slices
+    }).concat(authApi.middleware, matchesApi.middleware, usersApi.middleware,invitationsApi.middleware,searchApi.middleware), // Add  middlewares after creating the apis and slices
 });
 
 export type RootState = ReturnType<typeof store.getState>;

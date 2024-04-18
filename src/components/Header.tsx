@@ -4,6 +4,7 @@ import { JoinMatchDialog } from './JoinMatchDialog';
 import { ProfileButton } from './ProfileButton';
 import { LogoutButton } from './LogoutButton';
 import { InvitationsListenner } from './InvitationsListenner';
+import SearchComponent from './SearchComponent'
 
 const Header = () => {
 
@@ -16,10 +17,10 @@ const Header = () => {
         <img className="w-full h-full object-cover" src="/public/pingMeetpong-logo.png" alt="Logo" /> 
         <InvitationsListenner/>
       </div>
+      <SearchComponent/>
     </div>
 
     <div className="flex flex-col lg:flex-row items-center">
-      
         <CreateMatchDialog />
         <JoinMatchDialog />
          <ProfileButton/>
