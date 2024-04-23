@@ -1,10 +1,7 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { User } from '@/types'; // replace with the path to your User type
 
-interface ServerResponse {
-  message: string;
-  data: User;
-}
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { User } from '@/types';
+
 export const usersApi = createApi({
   reducerPath: 'usersApi',
   baseQuery: fetchBaseQuery({
@@ -18,8 +15,9 @@ export const usersApi = createApi({
     },
   }),
   endpoints: (builder) => ({
-    getUserById: builder.query<ServerResponse, string>({
+    getUserById: builder.query<User, string>({
       query: (userId) => `/${userId}`,
+      transformResponse: (response: { message: string; data: User }) => response.data,
     }),
   }),
 });

@@ -21,8 +21,10 @@ export const store = configureStore({
   reducer: {
     [authApi.reducerPath]: authApi.reducer,
     auth: authReducer,
+    
     [matchesApi.reducerPath]: matchesApi.reducer, // Add matchesApi reducer
     matches: matchesReducer, // Add matchesSlice to the reducer
+
     [usersApi.reducerPath]: usersApi.reducer, 
     users: usersReducer,
 

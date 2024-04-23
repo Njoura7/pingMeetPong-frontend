@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchUsersQuery } from '../features/search/searchApi';
 import { setSearchUsers } from '../features/search/searchSlice';
@@ -9,12 +9,11 @@ const SearchComponent = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    // Use the useSearchUsersQuery hook with the searchTerm as the argument.
-    // The skip option is removed to allow the query to run whenever searchTerm changes.
-    const { data: fetchedUsers, isFetching } = useSearchUsersQuery(searchTerm);
+    const { data: fetchedUsers, isFetching } = useSearchUsersQuery(searchTerm, {
+        skip: !searchTerm,
+      });
 
-    // Effect to dispatch setSearchUsers action whenever fetchedUsers changes.
-    // This includes when searchTerm changes or when the component mounts.
+
     useEffect(() => {
         if (fetchedUsers && !isFetching) {
             dispatch(setSearchUsers(fetchedUsers));
@@ -29,25 +28,29 @@ const SearchComponent = () => {
     };
 
     return (
-        <div className="flex flex-col items-center w-full"> 
-            <form className='w-full px-6' onSubmit={(e) => e.preventDefault()}>
-                <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search users..."
-                    className="p-2 border border-gray-300 rounded-md text-black w-full" 
-                />
-            </form>
-            <div className="mt-4 w-full max-h-60 overflow-auto"> 
-                {useSelector((state: any) => state.search.users).map((user: any) => (
-                    <div key={user._id} onClick={() => handleUserClick(user._id)} className="cursor-pointer flex justify-evenly items-center p-2 bg-gray-800 hover:bg-gray-500">
-                        <h2>{user.username}</h2>
-                        <img src={user.avatar} alt={user.username} className="w-12 h-12 rounded-full" />
-                    </div>
-                ))}
-            </div>
+        <form className="max-w-lg mx-8" onSubmit={(e) => e.preventDefault()}>
+        <label htmlFor="default-search" className="mb-2 text-sm font-medium text-gray-200 sr-only dark:text-white">Search</label>
+        <div className="flex relative w-full">
+            {/* implement search SVG in the future */}
+            <input
+                type="search"
+                id="default-search"
+                className="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="Search users..."
+                required
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+            />
         </div>
+        <div className="mt-4 w-full max-h-60 overflow-auto">
+          {useSelector((state) => state.search.users).map((user) => (
+            <div key={user._id} onClick={() => handleUserClick(user._id)} className="cursor-pointer flex justify-evenly items-center p-2 bg-gray-800 hover:bg-gray-500">
+              <h2>{user.username}</h2>
+              <img src={user.avatar} alt={user.username} className="w-12 h-12 rounded-full" />
+            </div>
+          ))}
+        </div>
+      </form>
     );
 };
 

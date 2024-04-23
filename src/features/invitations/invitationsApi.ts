@@ -3,9 +3,7 @@ import { User } from '@/types';
 
 interface ServerResponse {
   message: string;
-  //for the send invitation
   sender?: User;
-  //for getting invitations
   data?: User[];
 }
 
@@ -14,7 +12,7 @@ export const invitationsApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: 'http://localhost:7000/api/invitations', 
     prepareHeaders: (headers) => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token') || '';
       if (token) {
         headers.set('authorization', `Bearer ${token}`);
       }
@@ -31,9 +29,9 @@ export const invitationsApi = createApi({
       transformResponse: (response: ServerResponse) => response,
       invalidatesTags: [{ type: 'Invitations', id: 'LIST' }],
     }),
-    getInvitations: builder.query<ServerResponse, string>({
+    getInvitations: builder.query<User[], string>({
       query: (userId) => `/${userId}`,
-      transformResponse: (response: ServerResponse) => response,
+      transformResponse: (response: ServerResponse) => response.data || [],
     }),
   }),
   tagTypes: ['Invitations']

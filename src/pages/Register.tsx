@@ -48,7 +48,7 @@ export default function Register() {
   const navigate = useNavigate();
 
   const onSubmit = async (values: FormValues) => {
-    console.log(values);
+    
     if (values.password !== values.confirmPassword) {
       toast.error("Passwords do not match",{
         theme: "colored"
@@ -67,7 +67,7 @@ export default function Register() {
     } catch (error:any) {
       // Display the error message from the server
       toast.error(error.data.message);
-      // console.log(error.data)
+      
     }
   };
   return (
@@ -132,7 +132,7 @@ export default function Register() {
             <FormItem className="w-[175px] my-8 mx-auto">
               <FormLabel>Avatar</FormLabel>
               <Select onValueChange={(value) => {
-                console.log(value)
+                
                 field.onChange(value)}} 
                 defaultValue={field.value}>
                   <FormControl>

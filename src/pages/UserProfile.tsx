@@ -1,65 +1,69 @@
-import { useState } from 'react';
-import { useSelector } from 'react-redux';
+
+import type { RootState } from '../../src/app/store'; 
+import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { selectCurrentUser } from '../features/auth/authSlice';
 import { useGetUserByIdQuery } from '../features/users/usersApi';
-import { useSendInvitationMutation } from '../features/invitations/invitationsApi'; // Import from invitationsApi.ts
+import { useSendInvitationMutation } from '../features/invitations/invitationsApi'; 
+import { updateInvitationStatus, selectInvitationStatus } from '../features/invitations/invitationsSlice';
 import { toast } from 'react-toastify';
 //shadcn components
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 
 const UserProfile = () => {
-  const { userId } = useParams();
+  const { userId } = useParams<{ userId: string }>();
+  const safeUserId = userId || ''; // Ensure userId is never undefined
+  const dispatch = useDispatch();
   const currentUser = useSelector(selectCurrentUser);
-  const userIdOrCurrentUser = userId || currentUser.user;
 
-  const { data: user, isError, isLoading } = useGetUserByIdQuery(userIdOrCurrentUser || '');
+  const { data: user, isError, isLoading } = useGetUserByIdQuery(safeUserId);
+  console.log(user);
   const [sendInvitation, { isLoading: isSending }] = useSendInvitationMutation();
-  const [invitationSent, setInvitationSent] = useState(false);
-
+  const invitationStatus = useSelector((state: RootState) => selectInvitationStatus(state, safeUserId));
+  
   const handleSendInvitation = async () => {
-    if (user) {
+    if (currentUser.user && safeUserId) {
       try {
-        const response = await sendInvitation({ senderId: currentUser.user||'', recipientId: userId||'' }).unwrap();
-        console.log('Response:', response); // Log the response
-        // alert(response.message);
+        const response = await sendInvitation({ senderId: currentUser.user, recipientId: safeUserId }).unwrap();
+        dispatch(updateInvitationStatus({ userId: safeUserId, status: 'sent' }));
         toast.success(response.message);
-        // Update the state variable when the invitation is sent successfully
-        setInvitationSent(true);
       } catch (error) {
-        console.error("Error sending invitation:", error);
-        const typedError = error as any;
-        if (typedError.data) {
-          alert(typedError.data.message);
-        } else {
-          alert('An error occurred while sending the invitation.');
-        }
+        toast.error("Failed to send invitation.");
       }
     }
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  const renderButtonBasedOnStatus = () => {
+    switch (invitationStatus) {
+      case 'sent':
+        return <Button disabled>Invitation Sent</Button>;
+      case 'received':
+        return (
+          <>
+            <Button onClick={() => toast.info("Accept functionality not implemented yet")}>Accept</Button>
+            <Button onClick={() => toast.info("Decline functionality not implemented yet")}>Decline</Button>
+          </>
+        );
+      default:
+        return <Button onClick={handleSendInvitation} disabled={isSending || currentUser.user === userId}>
+          {isSending ? 'Sending...' : 'Send Invitation'}
+        </Button>;
+    }
+  };
 
-  if (isError || !user) {
-    return <div className="p-6 text-2xl">User not found</div>;
-  }
+  if (isLoading) return <div>Loading...</div>;
+  if (isError || !user) return <div>User not found</div>;
 
   return (
-    <Card className="flex items-center p-4">
-      <Avatar className="w-24 h-24 mt-8">
-        <AvatarImage src={user.data.avatar || undefined} alt="avatar" className="w-full h-full object-cover rounded-full" />
-        <AvatarFallback className="w-full h-full object-cover rounded-full bg-gray-700 text-gray-300">X</AvatarFallback>
+    <Card>
+      <Avatar>
+      <AvatarImage src={user.avatar || undefined} alt="User Avatar" />
+      <AvatarFallback>X</AvatarFallback>
       </Avatar>
-      <div className="ml-4 mt-8 text-gray-200 text-2xl">{user.data.username}</div>
-      {currentUser.user !== userId && (
-         <Button className="m-4" onClick={handleSendInvitation} disabled={isSending || invitationSent}>
-          {isSending ? 'Sending...' : invitationSent ? 'Invitation Sent' : 'Friend Request'}
-        </Button>
-      )}
+      <div>{user.username}</div>
+      {currentUser.user !== userId && renderButtonBasedOnStatus()}
     </Card>
   );
 };

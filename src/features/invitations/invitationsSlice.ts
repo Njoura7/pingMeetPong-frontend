@@ -1,20 +1,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { invitationsApi } from './invitationsApi';
 import type { RootState } from '../../app/store';
-import { invitationsApi } from './invitationsApi'; 
 import { User } from '@/types';
 
-interface SendInvitationServerResponse {
-  message: string;
-  sender?: User;
+interface InvitationsState {
+  invitations: User[];
+  invitationStatus: Record<string, 'sent' | 'received' | 'accepted'>;
 }
 
-interface GetInvitationsServerResponse {
-  message: string;
-  data?: User[];
-}
-
-const initialState = {
-  invitations: [] as User[], 
+const initialState: InvitationsState = {
+  invitations: [],
+  invitationStatus: {},
 };
 
 const invitationsSlice = createSlice({
@@ -22,30 +18,34 @@ const invitationsSlice = createSlice({
   initialState,
   reducers: {
     addInvitation: (state, action: PayloadAction<User>) => {
-       // Check if the invitations array already contains the new invitation
-      // ? to be tested
-       if (!state.invitations.some(invitation => invitation._id === action.payload._id)) {
-      // If it doesn't, add the new invitation at the beginning of the array
-      state.invitations.unshift(action.payload);
-    }
+      const exists = state.invitations.some(inv => inv._id === action.payload._id);
+      if (!exists) {
+        state.invitations.push(action.payload);
+      }
+    },
+    updateInvitationStatus: (state, action: PayloadAction<{ userId: string; status: 'sent' | 'received' | 'accepted' }>) => {
+      state.invitationStatus[action.payload.userId] = action.payload.status;
     },
   },
   extraReducers: (builder) => {
-    builder.addMatcher(invitationsApi.endpoints.sendInvitation.matchFulfilled, (state, { payload }: { payload: SendInvitationServerResponse }) => {
-      // if (payload.sender) {
-      //   state.invitations.unshift(payload.sender);
-      // }
+    builder.addMatcher(invitationsApi.endpoints.sendInvitation.matchFulfilled, (state, { payload }) => {
+      if (payload.sender && payload.sender._id) {
+        state.invitationStatus[payload.sender._id] = 'sent';
+      }
     });
-    builder.addMatcher(invitationsApi.endpoints.getInvitations.matchFulfilled, (state, { payload }: { payload: GetInvitationsServerResponse }) => {
-      if (payload.data) {
-        state.invitations = payload.data;
+    builder.addMatcher(invitationsApi.endpoints.getInvitations.matchFulfilled, (state, { payload }) => {
+      if (payload) {
+        state.invitations = payload;
+        payload.forEach(invitation => {
+          state.invitationStatus[invitation._id] = 'received';
+        });
       }
     });
   },
 });
 
-export const { addInvitation } = invitationsSlice.actions;
-
+export const { addInvitation, updateInvitationStatus } = invitationsSlice.actions;
 export const selectInvitations = (state: RootState) => state.invitations.invitations;
+export const selectInvitationStatus = (state: RootState, userId: string) => state.invitations.invitationStatus[userId] || 'none';
 
 export default invitationsSlice.reducer;

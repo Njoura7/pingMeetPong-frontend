@@ -11,7 +11,6 @@ import UserProfile from './pages/UserProfile';
 import { Provider } from 'react-redux';
 import { store } from './app/store'; 
 
-
 import {ToastContainer} from 'react-toastify'
 import "react-toastify/dist/ReactToastify.css"
 

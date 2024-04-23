@@ -3,7 +3,7 @@ import { CreateMatchDialog } from './CreateMatchDialog';
 import { JoinMatchDialog } from './JoinMatchDialog';
 import { ProfileButton } from './ProfileButton';
 import { LogoutButton } from './LogoutButton';
-import { InvitationsListenner } from './InvitationsListenner';
+import { InvitationsListener } from './InvitationsListener';
 import SearchComponent from './SearchComponent'
 
 const Header = () => {
@@ -15,7 +15,7 @@ const Header = () => {
     <div className="flex flex-col lg:flex-row items-center">
       <div className="  w-24 h-24 flex items-center justify-center mb-4 lg:mb-0 lg:mr-4">
         <img className="w-full h-full object-cover" src="/public/pingMeetpong-logo.png" alt="Logo" /> 
-        <InvitationsListenner/>
+        <InvitationsListener/>
       </div>
       <SearchComponent/>
     </div>
