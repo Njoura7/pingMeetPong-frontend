@@ -1,30 +1,86 @@
-# React + TypeScript + Vite
+# PingMeetPong Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Introduction
 
-Currently, two official plugins are available:
+PingMeetPong is a dynamic and engaging platform designed to connect users through interactive gaming experiences. This repository contains the frontend codebase for the PingMeetPong platform.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- [x] User Authentication 
+- [x] Create games 
+- [x] Search for players 
+- User interactions:
+  - [x] send invitations and receive in real time with socket.io
+  - [ ] accept/decline invitaions
+  - [ ] creting chat rooms for each game with socket.io
+- Enhance user profile:
+  - [ ] better UI (including Bio)
+  - [ ] player history
+  - [ ] recommendations & feedbacks    
+  
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Technology Stack
 
-- Configure the top-level `parserOptions` property like this:
+- React
+- TypeScript
+- TailwindCSS
+- Socket.io
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
+## Getting Started
+
+To get a local copy up and running follow these simple steps.
+
+### Prerequisites
+
+- npm
+  ```sh
+  npm install npm@latest -g
+  ```
+
+### Installation
+
+- Clone the repo
+
+```sh
+git clone https://github.com/Njoura7/pingMeetPong-frontend.git
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+Install NPM packages
+
+```sh
+npm install
+```
+
+Run on localhost
+
+```sh
+npm run dev
+```
+
+### Usage
+
+For using this project, follow these steps:
+
+Step 1
+Step 2
+
+#### Screenshots
+
+Here are some screenshots that illustrate the application in action:
+
+Screenshot 1
+Screenshot 2
+Screenshot 3
+
+### Contributing
+
+Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
+
+### License
+
+Distributed under the MIT License. See LICENSE for more information.
+
+### Contact
+
+Aziz Najjar - njourawebdev@gmail.com
+Project Link: https://github.com/Njoura7/pingMeetPong-frontend
