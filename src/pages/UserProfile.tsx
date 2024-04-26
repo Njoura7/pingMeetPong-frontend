@@ -30,8 +30,12 @@ const UserProfile = () => {
         dispatch(updateInvitationStatus({ userId: safeUserId, status: 'sent' }));
         toast.success(response.message);
       } catch (error) {
-        toast.error("Failed to send invitation.");
+      if(typeof error === "object" && error !== null ){
+        // Display the error message from the server
+        toast.error(error.data.message);
       }
+      
+    }
     }
   };
 
@@ -59,10 +63,10 @@ const UserProfile = () => {
   return (
     <Card>
       <Avatar>
-      <AvatarImage src={user.avatar || undefined} alt="User Avatar" />
+      <AvatarImage src={user.data.avatar || undefined} alt="User Avatar" />
       <AvatarFallback>X</AvatarFallback>
       </Avatar>
-      <div>{user.username}</div>
+      <div>{user.data.username}</div>
       {currentUser.user !== userId && renderButtonBasedOnStatus()}
     </Card>
   );

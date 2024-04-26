@@ -64,9 +64,11 @@ export default function Register() {
       navigate("/login");
 
         //! to be considered
-    } catch (error:any) {
-      // Display the error message from the server
-      toast.error(error.data.message);
+    } catch (error) {
+      if(typeof error === "object" && error !== null ){
+        // Display the error message from the server
+        toast.error(error.data.message);
+      }
       
     }
   };

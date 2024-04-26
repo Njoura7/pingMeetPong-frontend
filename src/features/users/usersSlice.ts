@@ -1,14 +1,12 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice,PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../../app/store';
 import { usersApi } from './usersApi'; 
-
 import { User } from '@/types'; 
 
 interface ServerResponse {
   message: string;
   data: User;
 }
-
 
 const initialState = {
   user: null as User | null,
@@ -19,15 +17,15 @@ const usersSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addMatcher(usersApi.endpoints.getUserById.matchFulfilled, (state, { payload }: { payload: ServerResponse }) => {
-      if (payload.data) {
-        state.user = payload.data;
+    builder.addMatcher(
+      usersApi.endpoints.getUserById.matchFulfilled,
+      (state, action: PayloadAction<ServerResponse>) => {
+        state.user = action.payload.data;
       }
-    });
+    );
   },
 });
 
-// Select the user from the store
 export const selectUser = (state: RootState) => state.users.user;
 
 export default usersSlice.reducer;
