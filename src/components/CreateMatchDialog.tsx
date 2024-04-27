@@ -34,6 +34,8 @@ const matchFormSchema = z.object({
   });
   
   interface MatchFormValues {
+    _id?: string;
+    code?: string;
     name: string;
     place: string;
     date: Date;
