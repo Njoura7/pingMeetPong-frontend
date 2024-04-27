@@ -32,8 +32,8 @@ export const InvitationsListener = () => {
     const { data: serverResponse } = useGetInvitationsQuery(currentUserId || '');
 
     useEffect(() => {
-      if (serverResponse && serverResponse.data) {
-        serverResponse.data.forEach(invitation => {
+      if (serverResponse) {
+        serverResponse.forEach(invitation => {
           dispatch(addInvitation(invitation));
         });
       }

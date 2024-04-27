@@ -1,9 +1,10 @@
-import { useForm } from "react-hook-form";
+import { useForm ,Controller } from "react-hook-form";
 import { useCreateMatchMutation } from '../features/matches/matchesApi'
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { DatePicker } from "./DatePicker";
+import  {DatePicker}  from "./DatePicker";
+import { DateProvider, useDate } from './DateContext';
 import {
     Dialog,
     DialogContent,
@@ -20,13 +21,12 @@ import { Button } from "@/components/ui/button";
 import { toast } from 'react-toastify';
 
 
-
 const matchFormSchema = z.object({
-    name: z.string().min(5, {
-      message: "Name must be at least 5 characters.",
+    name: z.string().min(4, {
+        message: "Name must be at least 4 characters.",
     }),
-    place: z.string().min(5, {
-      message: "Place must be at least 5 characters.",
+    place: z.string().min(4, {
+      message: "Place must be at least 4 characters.",
     }),
     date: z.date().min(new Date(),{ 
         message: "Please select a date in the future." ,
@@ -37,20 +37,22 @@ const matchFormSchema = z.object({
     name: string;
     place: string;
     date: Date;
-  }
+}
+
 
 export function CreateMatchDialog() {
+    const { date } = useDate(); // Use the date from context
     const form = useForm({
         resolver: zodResolver(matchFormSchema),
         defaultValues: {
           name: "",
           place: "",
-          date: new Date(),
+          date: date,
         },
       });
       const[createMatch] = useCreateMatchMutation();
    
-      const onSubmit = async (values: MatchFormValues) => {
+      const onSubmit: (values: MatchFormValues) => Promise<void> = async (values) =>  {
         
         try {
           const result = await createMatch(values).unwrap();
@@ -61,14 +63,16 @@ export function CreateMatchDialog() {
           });
     
             //! to be considered
-        } catch (error:any) {
-          // Display the error message from the server
-          toast.error(error.data.message);
-          console.log(error.data)
+        } catch (error) {
+            if(typeof error === "object" && error !== null ){
+                // Display the error message from the server
+                toast.error(error.data.message);
+              }
         }
       };
     return (
-        <Dialog>
+        <DateProvider>
+             <Dialog>
             <DialogTrigger asChild>
                 <Button variant="outline" className="font-bold py-2 px-4 rounded mb-4">
                     Create Match
@@ -117,13 +121,13 @@ export function CreateMatchDialog() {
                         />
 
 
-                        <FormField
+                        <Controller
                         control={form.control}
                         name="date"
-                        render={({ field }) =>( 
+                        render={({ field }) => (
                             <FormItem className="mx-6">
-                            <FormLabel className="mx-6">Match date</FormLabel>
-                            <DatePicker  field={field} />
+                            <FormLabel>Match date</FormLabel>
+                            <DatePicker selected={field.value} onSelect={(date) => field.onChange(date)} />
                             <FormDescription>
                                 This is your match date.
                             </FormDescription>
@@ -145,5 +149,7 @@ export function CreateMatchDialog() {
                 </DialogFooter>
             </DialogContent>
         </Dialog>
+        </DateProvider>
+       
     );
 }

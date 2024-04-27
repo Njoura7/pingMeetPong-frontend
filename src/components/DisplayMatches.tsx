@@ -43,7 +43,7 @@ const DisplayMatches = ({ playerId }: DisplayMatchesProps) => {
             <TableHead className="w-[100px]">Name</TableHead>
             <TableHead>Code</TableHead>
             <TableHead>Place</TableHead>
-            <TableHead>Date</TableHead>
+            <TableHead className="text-right">Date</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -51,7 +51,7 @@ const DisplayMatches = ({ playerId }: DisplayMatchesProps) => {
             const date = match.date instanceof Date ? match.date : new Date(match.date);
             return (
               <TableRow key={match._id || ''}>
-                <TableCell className="font-medium">{match.name}</TableCell>
+                <TableCell>{match.name}</TableCell>
                 <TableCell>{match.code}</TableCell>
                 <TableCell>{match.place}</TableCell>
                 <TableCell className="text-right">{date.toLocaleDateString()}</TableCell>

@@ -1,7 +1,6 @@
 import * as React from "react";
-import { format } from "date-fns";
+import { format, isBefore, startOfDay } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -12,47 +11,47 @@ import {
 } from "@/components/ui/popover";
 
 interface DatePickerProps {
-  field: {
-    value: Date | null;
-    onChange: (date: Date | null) => void;
-  };
+  selected: Date | undefined;
+  onSelect: (date: Date | undefined) => void;
 }
 
-export function DatePicker({ field }: DatePickerProps) {
-  const [isOpen, setIsOpen] = React.useState(false);
-
-  const handleSelect = (date: Date | null) => {
-    field.onChange(date);
-    setIsOpen(false);
+export const DatePicker: React.FC<DatePickerProps> = ({ selected, onSelect }) =>  {
+  const handleDateSelect = (selectedDate: Date | undefined) => {
+    // Check if selectedDate is undefined
+    if (!selectedDate) {
+      console.log("No date selected.");
+      return;
+    }
+    // Ensure the selected date is not before today
+    if (isBefore(startOfDay(selectedDate), startOfDay(new Date()))) {
+      // Optionally, alert the user or handle this case differently
+      return; // Do not update the date
+    }
+    onSelect(selectedDate); // Use onSelect to update the date externally
   };
 
   return (
-    <Popover isOpen={isOpen} onOpen={() => setIsOpen(true)} onClose={() => setIsOpen(false)}>
+    <Popover>
       <PopoverTrigger asChild>
         <Button
           variant={"outline"}
           className={cn(
             "w-[280px] justify-start text-left font-normal",
-            !field.value && "text-muted-foreground"
+            !selected && "text-muted-foreground"
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+          {selected ? format(selected, "PPP") : <span>Pick a date</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
-        <div>
         <Calendar
           mode="single"
-          selected={field.value}
-          onSelect={handleSelect}
+          selected={selected}
+          onSelect={handleDateSelect}
           initialFocus
         />
-      </div>
       </PopoverContent>
     </Popover>
   );
 }
-
-
-

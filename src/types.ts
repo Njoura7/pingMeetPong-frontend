@@ -1,7 +1,7 @@
 export interface Match {
-    _id: string;
+    _id?: string;
+    code?: string;
     name: string;
-    code: string;
     place: string;
     date: Date;
   }
