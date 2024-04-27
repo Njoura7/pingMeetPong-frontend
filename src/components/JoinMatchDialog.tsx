@@ -46,17 +46,20 @@ export function JoinMatchDialog() {
         toast.success(result.message, {
             theme: "colored",
         })
-    } catch (error) {
-        if (error.data) {
-          toast.error(error.data.message, {
-            theme: "colored",
-          });
-        } else {
-          toast.error("An error occurred", {
-            theme: "colored",
-          });
-        }
+    } catch (error: unknown) { 
+        // First, check if it's an object with a 'data' property
+        if (typeof error === "object" && error !== null && 'data' in error) {
+            const serverError = (error as { data: { message?: string } }).data;
+            console.log("serverError", serverError);
+        if (serverError.message) {
+          toast.error(serverError.message);
+        } 
+      } 
+      else {
+        // Generic fallback error message
+        toast.error("An unknown error occurred");     
       }
+    }
    }
     return (
         <Dialog>
