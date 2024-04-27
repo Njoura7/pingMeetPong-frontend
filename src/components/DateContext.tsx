@@ -1,15 +1,24 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-const DateContext = createContext({
-  date: new Date(),
-  setDate: (date: Date) => {},
-});
+// Define an interface for the context value
+interface DateContextType {
+  date: Date;
+  setDate: (date: Date) => void;
+}
 
-export const useDate = () => useContext(DateContext);
+// Create the context with an initial undefined value
+const DateContext = createContext<DateContextType | undefined>(undefined);
 
-// Define a type for the props expected by DateProvider
+export const useDate = () => {
+  const context = useContext(DateContext);
+  if (context === undefined) {
+    throw new Error('useDate must be used within a DateProvider');
+  }
+  return context;
+};
+
 type DateProviderProps = {
-  children: ReactNode; // This tells TypeScript that children can be any valid React node
+  children: ReactNode;
 };
 
 export const DateProvider: React.FC<DateProviderProps> = ({ children }) => {

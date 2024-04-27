@@ -1,5 +1,6 @@
 
 import { CreateMatchDialog } from './CreateMatchDialog';
+import { DateProvider } from './DateContext';
 import { JoinMatchDialog } from './JoinMatchDialog';
 import { ProfileButton } from './ProfileButton';
 import { LogoutButton } from './LogoutButton';
@@ -21,7 +22,9 @@ const Header = () => {
     </div>
 
     <div className="flex flex-col lg:flex-row items-center">
-        <CreateMatchDialog />
+        <DateProvider>
+            <CreateMatchDialog />
+        </DateProvider>
         <JoinMatchDialog />
          <ProfileButton/>
           <LogoutButton/>

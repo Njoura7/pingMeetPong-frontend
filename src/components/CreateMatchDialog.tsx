@@ -4,7 +4,7 @@ import { useCreateMatchMutation } from '../features/matches/matchesApi'
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import  {DatePicker}  from "./DatePicker";
-import { DateProvider, useDate } from './DateContext';
+import { useDate } from './DateContext';
 import {
     Dialog,
     DialogContent,
@@ -77,7 +77,7 @@ export function CreateMatchDialog() {
           }
       };
     return (
-        <DateProvider>
+        
              <Dialog>
             <DialogTrigger asChild>
                 <Button variant="outline" className="font-bold py-2 px-4 rounded mb-4">
@@ -153,7 +153,7 @@ export function CreateMatchDialog() {
                 </DialogFooter>
             </DialogContent>
         </Dialog>
-        </DateProvider>
+       
        
     );
 }
