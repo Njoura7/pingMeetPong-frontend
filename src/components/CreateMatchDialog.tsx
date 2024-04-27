@@ -57,20 +57,24 @@ export function CreateMatchDialog() {
       const onSubmit: (values: MatchFormValues) => Promise<void> = async (values) =>  {
         
         try {
-          const result = await createMatch(values).unwrap();
-          // Display the success message from the server
-          console.log("CREATED",result);
-          toast.success(result.message, {
-            theme: "colored"
-          });
-    
-            //! to be considered
-        } catch (error) {
-            if(typeof error === "object" && error !== null ){
-                // Display the error message from the server
-                toast.error(error.data.message);
-              }
-        }
+            const result = await createMatch(values).unwrap();
+            toast.success(result.message, {
+              theme: "colored"
+            });
+          } catch (error: unknown) { 
+              // First, check if it's an object with a 'data' property
+              if (typeof error === "object" && error !== null && 'data' in error) {
+                  const serverError = (error as { data: { message?: string } }).data;
+                  console.log("serverError", serverError);
+              if (serverError.message) {
+                toast.error(serverError.message);
+              } 
+            } 
+            else {
+              // Generic fallback error message
+              toast.error("An unknown error occurred");     
+            }
+          }
       };
     return (
         <DateProvider>
@@ -137,8 +141,6 @@ export function CreateMatchDialog() {
                             </FormItem>
                         )}
                         />
-
-
                     <Button type="submit">Save changes</Button>
                     </form>
                  </Form>
