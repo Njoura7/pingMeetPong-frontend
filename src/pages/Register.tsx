@@ -62,15 +62,21 @@ export default function Register() {
         theme: "colored"
       });
       navigate("/login");
-
-        //! to be considered
-    } catch (error) {
-      if(typeof error === "object" && error !== null ){
-        // Display the error message from the server
-        toast.error(error.data.message);
-      }
-      
+ 
+    } catch (error: unknown) { 
+      // First, check if it's an object with a 'data' property
+      if (typeof error === "object" && error !== null && 'data' in error) {
+          const serverError = (error as { data: { message?: string } }).data;
+          console.log("serverError", serverError);
+      if (serverError.message) {
+        toast.error(serverError.message);
+      } 
+    } 
+    else {
+      // Generic fallback error message
+      toast.error("An unknown error occurred");     
     }
+  }
   };
   return (
     <>
