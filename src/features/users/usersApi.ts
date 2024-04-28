@@ -17,6 +17,7 @@ export const usersApi = createApi({
   endpoints: (builder) => ({
     getUserById: builder.query<User, string>({
       query: (userId) => `/${userId}`,
+      transformResponse: (response: { data: User; message: string }) => response.data,
     }),
   }),
 });

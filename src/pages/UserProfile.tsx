@@ -19,22 +19,29 @@ const UserProfile = () => {
   const currentUser = useSelector(selectCurrentUser);
 
   const { data: user, isError, isLoading } = useGetUserByIdQuery(safeUserId);
-  console.log(user);
   const [sendInvitation, { isLoading: isSending }] = useSendInvitationMutation();
   const invitationStatus = useSelector((state: RootState) => selectInvitationStatus(state, safeUserId));
-  
+  console.log("invitationStatus:", invitationStatus)
+  console.log("user:", user)
   const handleSendInvitation = async () => {
-    if (currentUser.user && safeUserId) {
+    if (currentUser.user && safeUserId) { 
       try {
         const response = await sendInvitation({ senderId: currentUser.user, recipientId: safeUserId }).unwrap();
         dispatch(updateInvitationStatus({ userId: safeUserId, status: 'sent' }));
         toast.success(response.message);
-      } catch (error) {
-      if(typeof error === "object" && error !== null ){
-        // Display the error message from the server
-        toast.error(error.data.message);
+      } catch (error: unknown) { 
+        // First, check if it's an object with a 'data' property
+        if (typeof error === "object" && error !== null && 'data' in error) {
+            const serverError = (error as { data: { message?: string } }).data;
+            console.log("serverError", serverError);
+        if (serverError.message) {
+          toast.error(serverError.message);
+        } 
+      } 
+      else {
+        // Generic fallback error message
+        toast.error("An unknown error occurred");     
       }
-      
     }
     }
   };
@@ -63,10 +70,10 @@ const UserProfile = () => {
   return (
     <Card>
       <Avatar>
-      <AvatarImage src={user.data.avatar || undefined} alt="User Avatar" />
+      <AvatarImage src={user.avatar || undefined} alt="User Avatar" />
       <AvatarFallback>X</AvatarFallback>
       </Avatar>
-      <div>{user.data.username}</div>
+      <div>{user.username}</div>
       {currentUser.user !== userId && renderButtonBasedOnStatus()}
     </Card>
   );
