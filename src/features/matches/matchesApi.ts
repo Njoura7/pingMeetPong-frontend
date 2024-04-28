@@ -6,6 +6,10 @@ interface ServerResponse {
   message: string;
   data: Match[];
 }
+interface JoinMatchServerResponse {
+  message: string;
+  data: Match; // Single Match object
+}
 
 export const matchesApi = createApi({
   reducerPath: 'matchesApi',
@@ -34,7 +38,7 @@ export const matchesApi = createApi({
       providesTags: [{ type: 'Matches', id: 'LIST' }],
     }),
 
-    joinMatch: builder.mutation<ServerResponse,{code:string}>({
+    joinMatch: builder.mutation<JoinMatchServerResponse,{code:string}>({
       query:({code})=>({
         url:'/join',
         method:'POST',
