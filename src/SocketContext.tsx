@@ -3,20 +3,21 @@ import { io, Socket } from "socket.io-client";
 
 const SocketContext = createContext<Socket | null>(null); // Provide null as the default value
 
-export const SocketContextProvider = ({ children, userId }: { children: ReactNode, userId: string }) => {
+export const SocketContextProvider = ({ children, userId }: { children: ReactNode, userId: string|null }) => {
     const [socket, setSocket] = useState<Socket | null>(null); 
 
     useEffect(() => {
-        const socketIo = io("http://localhost:7000", {
-            query: { userId },
-        });
-        setSocket(socketIo);
+        if (userId) { 
+            const socketIo = io("http://localhost:7000", {
+                query: { userId },
+            });
+            setSocket(socketIo);
 
-        return () => {
-            socketIo.disconnect(); 
-        };
+            return () => {
+                socketIo.disconnect();
+            };
+        }
     }, [userId]);
-
     return <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>;
 };
 
