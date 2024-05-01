@@ -11,8 +11,8 @@ PingMeetPong is a dynamic and engaging platform designed to connect users throug
 - ✅ Search for players 
 - User interactions:
   - ✅ send invitations and receive in real time with socket.io
-  - [ ] accept/decline invitaions
-  - [ ] creting chat rooms for each game with socket.io
+  - [ ] accept/decline invitations
+  - [ ] creating chat rooms for each game with socket.io
 - Enhance user profile:
   - [ ] better UI (including Bio)
   - [ ] player history
