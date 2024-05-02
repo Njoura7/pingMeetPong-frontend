@@ -1,18 +1,23 @@
+// invitationsApi.ts
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { User } from '@/types';
 
-interface ServerResponse {
+interface Invitation {
+  senderId: string;
+  recipientId: string;
+}
+
+interface InvitationResponse {
   message: string;
-  sender?: User;
-  data?: User[];
+  pendingRequests: string[]; // Array of userIds
+  sentRequests: string[]; // Array of userIds
 }
 
 export const invitationsApi = createApi({
   reducerPath: 'invitationsApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:7000/api/invitations', 
+    baseUrl: 'http://localhost:7000/api/invitations',
     prepareHeaders: (headers) => {
-      const token = localStorage.getItem('token') || '';
+      const token = localStorage.getItem('token');
       if (token) {
         headers.set('authorization', `Bearer ${token}`);
       }
@@ -20,21 +25,18 @@ export const invitationsApi = createApi({
     },
   }),
   endpoints: (builder) => ({
-    sendInvitation: builder.mutation<ServerResponse, { senderId: string, recipientId: string }>({
-      query: ({ senderId, recipientId }) => ({
+    sendInvitation: builder.mutation<InvitationResponse, Invitation>({
+      query: (invitation) => ({
         url: '/',
         method: 'POST',
-        body: { senderId, recipientId },
+        body: invitation,
       }),
-      transformResponse: (response: ServerResponse) => response,
-      invalidatesTags: [{ type: 'Invitations', id: 'LIST' }],
     }),
-    getInvitations: builder.query<User[], string>({
+    getInvitations: builder.query<InvitationResponse, string>({
       query: (userId) => `/${userId}`,
-      transformResponse: (response: ServerResponse) => response.data || [],
     }),
   }),
-  tagTypes: ['Invitations']
+  tagTypes: ['Invitations'],
 });
 
 export const { useSendInvitationMutation, useGetInvitationsQuery } = invitationsApi;
