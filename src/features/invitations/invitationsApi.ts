@@ -24,6 +24,7 @@ export const invitationsApi = createApi({
       return headers;
     },
   }),
+  tagTypes: ['Invitations'],
   endpoints: (builder) => ({
     sendInvitation: builder.mutation<InvitationResponse, Invitation>({
       query: (invitation) => ({
@@ -31,12 +32,13 @@ export const invitationsApi = createApi({
         method: 'POST',
         body: invitation,
       }),
+      invalidatesTags: ['Invitations'], // Invalidate Invitations cache after sending an invitation
     }),
     getInvitations: builder.query<InvitationResponse, string>({
       query: (userId) => `/${userId}`,
+      providesTags: ['Invitations'], // This endpoint provides data tagged as 'Invitations'
     }),
   }),
-  tagTypes: ['Invitations'],
 });
 
 export const { useSendInvitationMutation, useGetInvitationsQuery } = invitationsApi;

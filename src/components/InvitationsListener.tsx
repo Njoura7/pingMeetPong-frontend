@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectCurrentUser } from '../features/auth/authSlice';
 import { addPendingInvitation } from '../features/invitations/invitationsSlice';
 import { useGetInvitationsQuery } from '../features/invitations/invitationsApi';
+import { InvitationItem } from './InvitationItem';
 import SocketContext from '../SocketContext';
 import NotifSvg from '../svgs/NotifSvg';
 import {
@@ -36,13 +37,14 @@ export const InvitationsListener = () => {
     const { data: serverResponse } = useGetInvitationsQuery(currentUserId || '');
 
     useEffect(() => {
-      if (serverResponse) {
-        // Assuming serverResponse.pendingRequests is an array of userIds
-        serverResponse.pendingRequests.forEach(invitationId => {
-          dispatch(addPendingInvitation(invitationId));
-        });
-      }
-    }, [serverResponse, dispatch]);
+        if (serverResponse) {
+          console.log('Server response received:', serverResponse);
+          const uniqueInvitations = serverResponse.pendingRequests.filter(invitationId => !invitations.includes(invitationId));
+          uniqueInvitations.forEach(invitationId => {
+            dispatch(addPendingInvitation(invitationId));
+          });
+        }
+      }, [serverResponse, dispatch, invitations]);
 
     useEffect(() => {
         console.log('Setting up socket listener'); // Debugging log
@@ -71,19 +73,11 @@ export const InvitationsListener = () => {
                 <DropdownMenuContent>
                     <DropdownMenuLabel>Notifications</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    {dropdownOpen && invitations.map((invitationId, index) => (
-                    <DropdownMenuItem key={index}>
-                        <div className="flex items-center px-4 py-2">
-                        {/* Conditional rendering to ensure notification is not null */}
-                        {notification && (
-                            <>
-                            <img src={notification.senderAvatar} alt="Sender Avatar" className="w-6 h-6 rounded-full mr-2" />
-                            <p>New invitation received from {notification.senderUsername}</p>
-                            </>
-                        )}
-                        </div>
-                    </DropdownMenuItem>
-                    ))}
+                        {dropdownOpen && invitations.map((invitationId, index) => (
+                        <DropdownMenuItem key={index}>
+                            <InvitationItem invitationId={invitationId} />
+                        </DropdownMenuItem>
+                        ))}
                 </DropdownMenuContent>
             </DropdownMenu>
         </div>

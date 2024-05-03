@@ -17,10 +17,13 @@ const invitationsSlice = createSlice({
   name: 'invitations',
   initialState,
   reducers: {
-    // Adding a new reducer to handle adding a new invitation
-    addPendingInvitation: (state, action: PayloadAction<string>) => {
-      state.pendingRequests.push(action.payload);
-    },
+    // Adding a reducer to handle adding a new invitation
+      addPendingInvitation: (state, action: PayloadAction<string>) => {
+        // Ensure the invitationId is not already in the array to prevent duplicates
+        if (!state.pendingRequests.includes(action.payload)) {
+          state.pendingRequests.unshift(action.payload); // Adds the new invitationId at the start of the array
+        }
+      },
   },
   extraReducers: (builder) => {
     builder.addMatcher(invitationsApi.endpoints.getInvitations.matchFulfilled, (state, { payload }) => {

@@ -1,4 +1,4 @@
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { selectCurrentUser } from '../features/auth/authSlice';
 import { useGetUserByIdQuery } from '../features/users/usersApi';
@@ -20,8 +20,8 @@ const UserProfile = () => {
 
   // Fetch current user's invitations to determine if there is an existing invitation
   // Assuming currentUser.user.id is the correct way to access the current user's ID
-  const { data: invitationsData } = useGetInvitationsQuery(currentUser?.user || '', {
-    skip: !currentUser?.user, // Skip the query if currentUser.user.id is not available
+  useGetInvitationsQuery(currentUser?.user || '', {
+    skip: !currentUser?.user,
   });
 
   const pendingRequests = useSelector(selectPendingRequests);
