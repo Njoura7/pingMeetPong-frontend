@@ -1,9 +1,9 @@
-import { useSelector } from 'react-redux';
+import { useSelector,useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { selectCurrentUser } from '../features/auth/authSlice';
 import { useGetUserByIdQuery } from '../features/users/usersApi';
-import { useSendInvitationMutation, useGetInvitationsQuery } from '../features/invitations/invitationsApi';
-import { selectPendingRequests, selectSentRequests } from '../features/invitations/invitationsSlice';
+import { useSendInvitationMutation, useGetInvitationsQuery, useHandleInvitationMutation } from '../features/invitations/invitationsApi';
+import { selectPendingRequests, selectSentRequests, selectFriends, addFriend } from '../features/invitations/invitationsSlice';
 
 import { toast } from 'react-toastify';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -18,15 +18,19 @@ const UserProfile = () => {
     skip: !safeUserId, // Skip the query if safeUserId is not available
   });
 
+  const [handleInvitation, { isLoading: isHandlingInvitation }] = useHandleInvitationMutation();
+
   // Fetch current user's invitations to determine if there is an existing invitation
-  // Assuming currentUser.user.id is the correct way to access the current user's ID
+
   useGetInvitationsQuery(currentUser?.user || '', {
     skip: !currentUser?.user,
   });
 
   const pendingRequests = useSelector(selectPendingRequests);
   const sentRequests = useSelector(selectSentRequests);
+  const friends = useSelector(selectFriends); // Selector to check if the user is already a friend
   const [sendInvitation, { isLoading: isSending }] = useSendInvitationMutation();
+  const dispatch = useDispatch();
 
   const handleSendInvitation = async () => {
     if (currentUser.user && safeUserId && currentUser.user !== safeUserId) {
@@ -49,15 +53,43 @@ const UserProfile = () => {
     }
     }
   };
-
+  const handleInvitationResponse = async (action: 'accept' | 'reject') => {
+    if (!currentUser.user) {
+      toast.error("Current user ID is not available.");
+      return; // Exit the function if currentUser.user is null
+    }
+  
+    try {
+      const response = await handleInvitation({
+        userId: currentUser.user, // Now guaranteed to be a string
+        senderId: safeUserId,
+        action: action
+      }).unwrap();
+      console.log("Response:", response);
+      toast.success(`Invitation ${action}ed successfully.`);
+      if (action === 'accept') {
+        dispatch(addFriend(safeUserId)); // Update the state to include the new friend
+      }
+      // Additional logic to update UI or state as needed
+    } catch (error) {
+      toast.error(`Failed to ${action} invitation.`);
+      // Error handling logic
+    }
+  };
   const renderButtonBasedOnStatus = () => {
-    if (sentRequests.includes(safeUserId)) {
+    if (friends.includes(safeUserId)) {
+      return <span>Friend</span>; // Display "Friend" if the user is already a friend
+    } else if (sentRequests.includes(safeUserId)) {
       return <Button disabled>Invitation Sent</Button>;
-    } else if (pendingRequests.includes(safeUserId)) {
+    } else if (pendingRequests.includes(safeUserId)){
       return (
         <>
-          <Button onClick={() => toast.info("Accept functionality not implemented yet")}>Accept</Button>
-          <Button onClick={() => toast.info("Decline functionality not implemented yet")}>Decline</Button>
+          <Button onClick={() => handleInvitationResponse('accept')} disabled={isHandlingInvitation}>
+            {isHandlingInvitation ? 'Processing...' : 'Accept'}
+          </Button>
+          <Button onClick={() => handleInvitationResponse('reject')} disabled={isHandlingInvitation}>
+            {isHandlingInvitation ? 'Processing...' : 'Decline'}
+          </Button>
         </>
       );
     } else {
