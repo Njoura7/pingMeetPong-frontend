@@ -34,27 +34,27 @@ const DisplayMatches = ({ playerId }: DisplayMatchesProps) => {
   });
 
   return (
-    <ScrollArea className="h-80 w-full rounded-md border">
+    <ScrollArea className="h-[25rem] w-full rounded-md border">
     <div className="p-4">
       <Table>
         <TableCaption>Your Matches</TableCaption>
         <TableHeader>
-          <TableRow>
-            <TableHead className="w-[100px]">Name</TableHead>
-            <TableHead>Code</TableHead>
-            <TableHead>Place</TableHead>
-            <TableHead className="text-right">Date</TableHead>
+          <TableRow className='flex'>
+            <TableHead className="text-left w-1/4">Name</TableHead>
+            <TableHead className='w-1/4'>Code</TableHead>
+            <TableHead className='w-1/4'>Place</TableHead>
+            <TableHead className="text-right w-1/4">Date</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {sortedMatches.map((match: Match) => {
             const date = match.date instanceof Date ? match.date : new Date(match.date);
             return (
-              <TableRow key={match._id || ''}>
-                <TableCell>{match.name}</TableCell>
-                <TableCell>{match.code}</TableCell>
-                <TableCell>{match.place}</TableCell>
-                <TableCell className="text-right">{date.toLocaleDateString()}</TableCell>
+              <TableRow key={match._id || ''} className='flex'>
+                <TableCell className='text-left w-1/4'>{match.name}</TableCell>
+                <TableCell className='text-left w-1/4'>{match.code}</TableCell>
+                <TableCell className='text-left w-1/4'>{match.place}</TableCell>
+                <TableCell className="text-right w-1/4">{date.toLocaleDateString()}</TableCell>
               </TableRow>
             );
           })}

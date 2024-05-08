@@ -1,8 +1,9 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect , useState} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectCurrentUser } from '../features/auth/authSlice';
-import { addInvitation, selectInvitations } from '../features/invitations/invitationsSlice';
+import { addPendingInvitation } from '../features/invitations/invitationsSlice';
 import { useGetInvitationsQuery } from '../features/invitations/invitationsApi';
+import { InvitationItem } from './InvitationItem';
 import SocketContext from '../SocketContext';
 import NotifSvg from '../svgs/NotifSvg';
 import {
@@ -13,6 +14,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+// Assuming selectInvitations is meant to select either pendingRequests or sentRequests
+// Adjust according to your actual selector
+import { selectPendingRequests } from '../features/invitations/invitationsSlice';
 
 interface NotificationData {
     senderId: string;
@@ -27,32 +32,34 @@ export const InvitationsListener = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const currentUser = useSelector(selectCurrentUser);
     const currentUserId = currentUser.user;
-    const invitations = useSelector(selectInvitations);
+    const invitations = useSelector(selectPendingRequests); // Adjusted to use selectPendingRequests
 
     const { data: serverResponse } = useGetInvitationsQuery(currentUserId || '');
 
     useEffect(() => {
-      if (serverResponse) {
-        serverResponse.forEach(invitation => {
-          dispatch(addInvitation(invitation));
-        });
-      }
-    }, [serverResponse, dispatch]);
+        if (serverResponse) {
+          console.log('Server response received:', serverResponse);
+          const uniqueInvitations = serverResponse.pendingRequests.filter(invitationId => !invitations.includes(invitationId));
+          uniqueInvitations.forEach(invitationId => {
+            dispatch(addPendingInvitation(invitationId));
+          });
+        }
+      }, [serverResponse, dispatch, invitations]);
 
     useEffect(() => {
-        socket?.on('newNotification', (notificationData: NotificationData) => {
-            if ('senderId' in notificationData && 'senderUsername' in notificationData && 'senderAvatar' in notificationData) {
-                dispatch(addInvitation({
-                    _id: notificationData.senderId,
-                    username: notificationData.senderUsername,
-                    avatar: notificationData.senderAvatar
-                }));
+        console.log('Setting up socket listener'); // Debugging log
+        const handleNewNotification = (notificationData: NotificationData) => {
+            if ('senderId' in notificationData) {
+                dispatch(addPendingInvitation(notificationData.senderId));
                 setNotification(notificationData);
             }
-        });
-
+        };
+    
+        socket?.on('newNotification', handleNewNotification);
+    
         return () => {
-          socket?.off('newNotification');
+            console.log('Cleaning up socket listener'); // Debugging log
+            socket?.off('newNotification', handleNewNotification);
         };
     }, [socket, dispatch]);
 
@@ -66,14 +73,11 @@ export const InvitationsListener = () => {
                 <DropdownMenuContent>
                     <DropdownMenuLabel>Notifications</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    {dropdownOpen && invitations.map((invitation, index) => (
+                        {dropdownOpen && invitations.map((invitationId, index) => (
                         <DropdownMenuItem key={index}>
-                            <div className="flex items-center px-4 py-2">
-                                <img src={invitation.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-4" />
-                                <p>You have a new friend request from {invitation.username}</p>
-                            </div>
+                            <InvitationItem invitationId={invitationId} />
                         </DropdownMenuItem>
-                    ))}
+                        ))}
                 </DropdownMenuContent>
             </DropdownMenu>
         </div>

@@ -1,51 +1,69 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { invitationsApi } from './invitationsApi';
-import type { RootState } from '../../app/store';
-import { User } from '@/types';
+// invitationsSlice.ts
+import { createSlice,PayloadAction } from '@reduxjs/toolkit';
+import { RootState } from '../../app/store';
+import { invitationsApi, HandleInvitation,HandleInvitationResponse } from './invitationsApi';
 
-interface InvitationsState {
-  invitations: User[];
-  invitationStatus: Record<string, 'sent' | 'received' | 'accepted'>;
+interface InvitationState {
+  pendingRequests: string[];  // User IDs to whom invitations are pending
+  sentRequests: string[];     // User IDs from whom invitations were sent
+  friends: string[]; 
+
 }
 
-const initialState: InvitationsState = {
-  invitations: [],
-  invitationStatus: {},
+const initialState: InvitationState = {
+  pendingRequests: [],
+  sentRequests: [],
+  friends: [], // Initialize the friends array
 };
 
 const invitationsSlice = createSlice({
   name: 'invitations',
   initialState,
   reducers: {
-    addInvitation: (state, action: PayloadAction<User>) => {
-      const exists = state.invitations.some(inv => inv._id === action.payload._id);
-      if (!exists) {
-        state.invitations.push(action.payload);
+    // Adding a reducer to handle adding a new invitation
+    addPendingInvitation: (state, action: PayloadAction<string>) => {
+      // Ensure the invitationId is not already in the array to prevent duplicates
+      if (!state.pendingRequests.includes(action.payload)) {
+        state.pendingRequests.unshift(action.payload); // Adds the new invitationId at the start of the array
       }
     },
-    updateInvitationStatus: (state, action: PayloadAction<{ userId: string; status: 'sent' | 'received' | 'accepted' }>) => {
-      state.invitationStatus[action.payload.userId] = action.payload.status;
+    addFriend: (state, action: PayloadAction<string>) => {
+      if (!state.friends.includes(action.payload)) {
+        state.friends.push(action.payload);
+      }
+    },
+    removeFriend: (state, action: PayloadAction<string>) => {
+      state.friends = state.friends.filter(friendId => friendId !== action.payload);
     },
   },
   extraReducers: (builder) => {
-    builder.addMatcher(invitationsApi.endpoints.sendInvitation.matchFulfilled, (state, { payload }) => {
-      if (payload.sender && payload.sender._id) {
-        state.invitationStatus[payload.sender._id] = 'sent';
-      }
-    });
-    builder.addMatcher(invitationsApi.endpoints.getInvitations.matchFulfilled, (state, { payload }) => {
-      if (payload) {
-        state.invitations = payload;
-        payload.forEach(invitation => {
-          state.invitationStatus[invitation._id] = 'received';
-        });
-      }
-    });
+    builder
+      .addMatcher(invitationsApi.endpoints.getInvitations.matchFulfilled, (state, action) => {
+        state.pendingRequests = action.payload.pendingRequests;
+        state.sentRequests = action.payload.sentRequests;
+      })
+      .addMatcher(invitationsApi.endpoints.handleInvitation.matchFulfilled, (state, action: PayloadAction<HandleInvitationResponse, string, { arg: { originalArgs: HandleInvitation }; requestId: string; requestStatus: "fulfilled"; }, never>) => {
+        // Access originalArgs from action.meta.arg for the original arguments
+        const { senderId, action: invitationAction } = action.meta.arg.originalArgs;
+  
+        state.pendingRequests = state.pendingRequests.filter(id => id !== senderId);
+  
+        if (invitationAction === 'accept') {
+          state.friends.push(senderId);
+        }
+      });
   },
+
+
 });
 
-export const { addInvitation, updateInvitationStatus } = invitationsSlice.actions;
-export const selectInvitations = (state: RootState) => state.invitations.invitations;
-export const selectInvitationStatus = (state: RootState, userId: string) => state.invitations.invitationStatus[userId] || 'none';
+
+
+export const { addPendingInvitation,addFriend, removeFriend  } = invitationsSlice.actions;
+
+// Export selectors for accessing parts of the state
+export const selectPendingRequests = (state: RootState) => state.invitations.pendingRequests;
+export const selectSentRequests = (state: RootState) => state.invitations.sentRequests;
+export const selectFriends = (state: RootState) => state.invitations.friends;
 
 export default invitationsSlice.reducer;
