@@ -12,7 +12,7 @@ export const ProfileButton = () => {
     const navigate = useNavigate();
 
     const handleProfileClick = () => {
-        if ( user) {
+        if (user) {
           navigate(`/profile/${user}`);
         } else {
           console.error('User or user ID is undefined');
