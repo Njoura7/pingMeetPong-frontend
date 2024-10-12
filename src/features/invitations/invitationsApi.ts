@@ -6,17 +6,15 @@ interface Invitation {
   senderId: string;
   recipientId: string;
 }
-
-export interface HandleInvitation {
-  userId: string;
-  senderId: string;
-  action: 'accept' | 'reject';
-}
-
 interface InvitationResponse {
   message: string;
   pendingRequests: string[]; // Array of userIds
   sentRequests: string[]; // Array of userIds
+}
+export interface HandleInvitation {
+  userId: string;
+  senderId: string;
+  action: 'accept' | 'reject';
 }
 
 export interface HandleInvitationResponse {
@@ -46,10 +44,12 @@ export const invitationsApi = createApi({
       }),
       invalidatesTags: ['Invitations'], // Invalidate Invitations cache after sending an invitation
     }),
+
     getInvitations: builder.query<InvitationResponse, string>({
       query: (userId) => `/${userId}`,
       providesTags: ['Invitations'], // This endpoint provides data tagged as 'Invitations'
     }),
+
     handleInvitation: builder.mutation<HandleInvitationResponse, HandleInvitation>({
       query: ({ userId, senderId, action }) => ({
         url: `/handle`, 
@@ -58,6 +58,7 @@ export const invitationsApi = createApi({
       }),
       invalidatesTags: ['Invitations'], // Invalidate Invitations cache after handling an invitation
     }),
+
   }),
 });
 
