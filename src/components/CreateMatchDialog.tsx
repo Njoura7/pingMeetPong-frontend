@@ -1,9 +1,9 @@
-import { useForm ,Controller } from "react-hook-form";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { useCreateMatchMutation } from '../features/matches/matchesApi'
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import  {DatePicker}  from "./DatePicker";
+import { DatePicker } from "./DatePicker";
 import { useDate } from './DateContext';
 import {
     Dialog,
@@ -15,9 +15,9 @@ import {
     DialogTrigger,
     DialogClose
 } from "@/components/ui/dialog";
-import { Form,FormControl,FormDescription,FormField,FormItem,FormLabel,FormMessage } from "@/components/ui/form"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button"; 
+import { Button } from "@/components/ui/button";
 import { toast } from 'react-toastify';
 
 
@@ -26,16 +26,16 @@ const matchFormSchema = z.object({
         message: "Name must be at least 4 characters.",
     }),
     place: z.string().min(4, {
-      message: "Place must be at least 4 characters.",
+        message: "Place must be at least 4 characters.",
     }),
-    date: z.date().min(new Date(),{ 
-        message: "Please select a date in the future." ,
+    date: z.date().min(new Date(), {
+        message: "Please select a date in the future.",
     }),
-  });
-  
-  interface MatchFormValues {
-    _id?: string;
-    code?: string;
+});
+
+interface MatchFormValues {
+    _id: string; // Ensure this is always a string
+    code: string; // Change from 'string | undefined' to 'string'
     name: string;
     place: string;
     date: Date;
@@ -44,41 +44,39 @@ const matchFormSchema = z.object({
 
 export function CreateMatchDialog() {
     const { date } = useDate(); // Use the date from context
-    const form = useForm({
+    const form = useForm<MatchFormValues>({
         resolver: zodResolver(matchFormSchema),
         defaultValues: {
-          name: "",
-          place: "",
-          date: date,
+            _id: "", // Provide a default value for _id
+            code: "", // Provide a default value for code
+            name: "",
+            place: "",
+            date: date,
         },
-      });
-      const[createMatch] = useCreateMatchMutation();
-   
-      const onSubmit: (values: MatchFormValues) => Promise<void> = async (values) =>  {
-        
+    });
+    const [createMatch] = useCreateMatchMutation();
+
+    const onSubmit: SubmitHandler<MatchFormValues> = async (values) => {
         try {
             const result = await createMatch(values).unwrap();
             toast.success(result.message, {
-              theme: "colored"
+                theme: "colored"
             });
-          } catch (error: unknown) { 
-              // First, check if it's an object with a 'data' property
-              if (typeof error === "object" && error !== null && 'data' in error) {
-                  const serverError = (error as { data: { message?: string } }).data;
-                  console.log("serverError", serverError);
-              if (serverError.message) {
-                toast.error(serverError.message);
-              } 
-            } 
-            else {
-              // Generic fallback error message
-              toast.error("An unknown error occurred");     
+        } catch (error: unknown) {
+            if (typeof error === "object" && error !== null && 'data' in error) {
+                const serverError = (error as { data: { message?: string } }).data;
+                console.log("serverError", serverError);
+                if (serverError.message) {
+                    toast.error(serverError.message);
+                }
+            } else {
+                toast.error("An unknown error occurred");
             }
-          }
-      };
+        }
+    };
+
     return (
-        
-             <Dialog>
+        <Dialog>
             <DialogTrigger asChild>
                 <Button variant="outline" className="font-bold py-2 px-4 rounded mb-4">
                     Create Match
@@ -92,68 +90,64 @@ export function CreateMatchDialog() {
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
-                    <form  onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                         <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                            <FormItem className="mx-6">
-                            <FormLabel>Match name</FormLabel>
-                            <FormControl>
-                                <Input placeholder="Enter the match name" {...field} autoComplete="name"/>
-                            </FormControl>
-                            <FormDescription>
-                                This is your public match display name.
-                            </FormDescription>
-                            <FormMessage />
-                            </FormItem>
-                        )}
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                                <FormItem className="mx-6">
+                                    <FormLabel>Match name</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Enter the match name" {...field} autoComplete="name" />
+                                    </FormControl>
+                                    <FormDescription>
+                                        This is your public match display name.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
                         <FormField
-                        control={form.control}
-                        name="place"
-                        render={({ field }) => (
-                            <FormItem className="mx-6">
-                            <FormLabel>Match location</FormLabel>
-                            <FormControl>
-                                <Input placeholder="Enter the match location" {...field} autoComplete="place"/>
-                            </FormControl>
-                            <FormDescription>
-                                This is your match location.
-                            </FormDescription>
-                            <FormMessage />
-                            </FormItem>
-                        )}
+                            control={form.control}
+                            name="place"
+                            render={({ field }) => (
+                                <FormItem className="mx-6">
+                                    <FormLabel>Match location</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Enter the match location" {...field} autoComplete="place" />
+                                    </FormControl>
+                                    <FormDescription>
+                                        This is your match location.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-
-
                         <Controller
-                        control={form.control}
-                        name="date"
-                        render={({ field }) => (
-                            <FormItem className="mx-6">
-                            <FormLabel>Match date</FormLabel>
-                            <DatePicker selected={field.value} onSelect={(date) => field.onChange(date)} />
-                            <FormDescription>
-                                This is your match date.
-                            </FormDescription>
-                            <FormMessage />
-                            </FormItem>
-                        )}
+                            control={form.control}
+                            name="date"
+                            render={({ field }) => (
+                                <FormItem className="mx-6">
+                                    <FormLabel>Match date</FormLabel>
+                                    <DatePicker selected={field.value} onSelect={(date) => field.onChange(date)} />
+                                    <FormDescription>
+                                        This is your match date.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                    <Button type="submit">Save changes</Button>
+                        <Button type="submit">Save changes</Button>
                     </form>
-                 </Form>
+                </Form>
                 <DialogFooter>
-                <DialogClose asChild>
-                    <Button type="button" variant="secondary">
-                        Close
-                    </Button>
-                </DialogClose>
+                    <DialogClose asChild>
+                        <Button type="button" variant="secondary">
+                            Close
+                        </Button>
+                    </DialogClose>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
-       
-       
     );
 }

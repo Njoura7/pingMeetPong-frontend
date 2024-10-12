@@ -6,14 +6,14 @@ import { useGetUserByIdQuery } from '../features/users/usersApi';
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
-import UserActionButton from '../components/UserActionButton'; // Import the UserActionButton component
+import UserActionButton from '../components/UserActionButton';
 
 const UserProfile = () => {
   const { userId } = useParams<{ userId: string }>();
-  const safeUserId = userId || ''; // Ensure userId is never undefined
+  const safeUserId = userId || '';
   const currentUser = useSelector(selectCurrentUser);
   const { data: user, isError, isLoading } = useGetUserByIdQuery(safeUserId, {
-    skip: !safeUserId, // Skip the query if safeUserId is not available
+    skip: !safeUserId,
   });
 
   if (isLoading) return <div>Loading...</div>;
@@ -26,8 +26,7 @@ const UserProfile = () => {
         <AvatarFallback>X</AvatarFallback>
       </Avatar>
       <div>{user.username}</div>
-      {/* Conditionally render UserActionButton if the profile is not of the current user */}
-      {currentUser.user !== userId && <UserActionButton />}
+      {currentUser.user !== userId && <UserActionButton userId={safeUserId} />}
     </Card>
   );
 };

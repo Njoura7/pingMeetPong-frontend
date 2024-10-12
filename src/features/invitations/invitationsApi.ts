@@ -1,35 +1,13 @@
-
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import {User} from '../../types';
-
-interface Invitation {
-  senderId: string;
-  recipientId: string;
-}
-
-export interface HandleInvitation {
-  userId: string;
-  senderId: string;
-  action: 'accept' | 'reject';
-}
-
-interface InvitationResponse {
-  message: string;
-  pendingRequests: string[]; // Array of userIds
-  sentRequests: string[]; // Array of userIds
-}
-
-export interface HandleInvitationResponse {
-  message: string;
-  data: User; 
-}
+import { RootState } from '../../app/store';
+import { SendInvitationRequest, SendInvitationResponse, HandleInvitationRequest, HandleInvitationResponse, GetInvitationsResponse } from './types';
 
 export const invitationsApi = createApi({
   reducerPath: 'invitationsApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:7000/api/invitations',
-    prepareHeaders: (headers) => {
-      const token = localStorage.getItem('token');
+    baseUrl: 'http://localhost:7000/api',
+    prepareHeaders: (headers, { getState }) => {
+      const token = (getState() as RootState).auth.token;
       if (token) {
         headers.set('authorization', `Bearer ${token}`);
       }
@@ -38,27 +16,27 @@ export const invitationsApi = createApi({
   }),
   tagTypes: ['Invitations'],
   endpoints: (builder) => ({
-    sendInvitation: builder.mutation<InvitationResponse, Invitation>({
-      query: (invitation) => ({
-        url: '/',
+    sendInvitation: builder.mutation<SendInvitationResponse, SendInvitationRequest>({
+      query: (body) => ({
+        url: '/invitations',
         method: 'POST',
-        body: invitation,
+        body,
       }),
-      invalidatesTags: ['Invitations'], // Invalidate Invitations cache after sending an invitation
+      invalidatesTags: ['Invitations'],
     }),
-    getInvitations: builder.query<InvitationResponse, string>({
-      query: (userId) => `/${userId}`,
-      providesTags: ['Invitations'], // This endpoint provides data tagged as 'Invitations'
-    }),
-    handleInvitation: builder.mutation<HandleInvitationResponse, HandleInvitation>({
-      query: ({ userId, senderId, action }) => ({
-        url: `/handle`, 
+    handleInvitation: builder.mutation<HandleInvitationResponse, HandleInvitationRequest>({
+      query: (body) => ({
+        url: '/invitations/handle',
         method: 'POST',
-        body: { userId, senderId, action },
+        body,
       }),
-      invalidatesTags: ['Invitations'], // Invalidate Invitations cache after handling an invitation
+      invalidatesTags: ['Invitations'],
+    }),
+    getInvitations: builder.query<GetInvitationsResponse, string>({
+      query: (userId) => `/invitations/${userId}`,
+      providesTags: ['Invitations'],
     }),
   }),
 });
 
-export const { useSendInvitationMutation, useGetInvitationsQuery, useHandleInvitationMutation } = invitationsApi;
+export const { useSendInvitationMutation, useHandleInvitationMutation, useGetInvitationsQuery } = invitationsApi;
