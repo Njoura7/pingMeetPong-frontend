@@ -1,6 +1,6 @@
 export interface Match {
-    _id?: string;
-    code?: string;
+    _id: string;
+    code: string;
     name: string;
     place: string;
     date: Date;

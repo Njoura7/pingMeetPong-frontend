@@ -1,23 +1,22 @@
-import { useContext, useEffect , useState} from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectCurrentUser } from '../features/auth/authSlice';
-import { addPendingInvitation } from '../features/invitations/invitationsSlice';
+import { addPendingRequest, selectPendingRequests } from '../features/invitations/invitationsSlice';
 import { useGetInvitationsQuery } from '../features/invitations/invitationsApi';
 import { InvitationItem } from './InvitationItem';
 import SocketContext from '../SocketContext';
 import NotifSvg from '../svgs/NotifSvg';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 // Assuming selectInvitations is meant to select either pendingRequests or sentRequests
 // Adjust according to your actual selector
-import { selectPendingRequests } from '../features/invitations/invitationsSlice';
 
 interface NotificationData {
     senderId: string;
@@ -28,56 +27,79 @@ interface NotificationData {
 export const InvitationsListener = () => {
     const dispatch = useDispatch();
     const socket = useContext(SocketContext);
-    const [notification, setNotification] = useState<NotificationData | null>(null);
-    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [notifications, setNotifications] = useState<NotificationData[]>([]);
     const currentUser = useSelector(selectCurrentUser);
-    const currentUserId = currentUser.user;
-    const invitations = useSelector(selectPendingRequests); // Adjusted to use selectPendingRequests
+    const pendingRequests = useSelector(selectPendingRequests);
 
-    const { data: serverResponse } = useGetInvitationsQuery(currentUserId || '');
+    const { data: invitationsData, refetch } = useGetInvitationsQuery(currentUser?.user || '', {
+        skip: !currentUser?.user,
+    });
 
     useEffect(() => {
-        if (serverResponse) {
-          console.log('Server response received:', serverResponse);
-          const uniqueInvitations = serverResponse.pendingRequests.filter(invitationId => !invitations.includes(invitationId));
-          uniqueInvitations.forEach(invitationId => {
-            dispatch(addPendingInvitation(invitationId));
-          });
+        if (invitationsData) {
+            console.log('Invitations data received:', invitationsData);
+            invitationsData.pendingRequests.forEach(invitationId => {
+                if (!pendingRequests.includes(invitationId)) {
+                    dispatch(addPendingRequest(invitationId));
+                }
+            });
         }
-      }, [serverResponse, dispatch, invitations]);
+    }, [invitationsData, dispatch, pendingRequests]);
 
     useEffect(() => {
-        console.log('Setting up socket listener'); // Debugging log
+        if (!socket) return;
+
         const handleNewNotification = (notificationData: NotificationData) => {
-            if ('senderId' in notificationData) {
-                dispatch(addPendingInvitation(notificationData.senderId));
-                setNotification(notificationData);
-            }
+            console.log('New notification received:', notificationData);
+            setNotifications(prev => [...prev, notificationData]);
+            dispatch(addPendingRequest(notificationData.senderId));
+            refetch();
         };
-    
-        socket?.on('newNotification', handleNewNotification);
-    
+
+        socket.on('newNotification', handleNewNotification);
+
+        socket.on('connect', () => {
+            console.log('Socket connected in InvitationsListener');
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('Socket connection error in InvitationsListener:', error);
+        });
+
         return () => {
-            console.log('Cleaning up socket listener'); // Debugging log
-            socket?.off('newNotification', handleNewNotification);
+            socket.off('newNotification', handleNewNotification);
+            socket.off('connect');
+            socket.off('connect_error');
         };
-    }, [socket, dispatch]);
+    }, [socket, dispatch, refetch]);
+
+    const clearNotification = (senderId: string) => {
+        setNotifications(prev => prev.filter(notif => notif.senderId !== senderId));
+    };
 
     return (
         <div className="relative mb-4 lg:mb-0">
-            <DropdownMenu onOpenChange={setDropdownOpen}>
-                <DropdownMenuTrigger>
-                    <NotifSvg />
-                    {notification && <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>}
+            <DropdownMenu>
+                <DropdownMenuTrigger className="focus:outline-none">
+                    <div className="relative">
+                        <NotifSvg />
+                        {notifications.length > 0 && (
+                            <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                        )}
+                    </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                     <DropdownMenuLabel>Notifications</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                        {dropdownOpen && invitations.map((invitationId, index) => (
-                        <DropdownMenuItem key={index}>
-                            <InvitationItem invitationId={invitationId} />
-                        </DropdownMenuItem>
-                        ))}
+                    {notifications.length > 0 ? (
+                        notifications.map((notif, index) => (
+                            <DropdownMenuItem key={index} onSelect={() => clearNotification(notif.senderId)}>
+                                <InvitationItem invitationId={notif.senderId} />
+                            </DropdownMenuItem>
+                        ))
+                    ) : (
+                        <DropdownMenuItem>No new notifications</DropdownMenuItem>
+                    )}
                 </DropdownMenuContent>
             </DropdownMenu>
         </div>
