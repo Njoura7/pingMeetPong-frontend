@@ -1,26 +1,26 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import { Match } from '@/types';
+import { Match } from '@/types'
 
 interface ServerResponse {
-  message: string;
-  data: Match[];
+  message: string
+  data: Match[]
 }
 interface JoinMatchServerResponse {
-  message: string;
-  data: Match; // Single Match object
+  message: string
+  data: Match // Single Match object
 }
 
 export const matchesApi = createApi({
   reducerPath: 'matchesApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:7000/api/matches',
+    baseUrl: `${import.meta.env.VITE_BACKEND_URL}/api/matches`,
     prepareHeaders: (headers) => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token')
       if (token) {
-        headers.set('authorization', `Bearer ${token}`);
+        headers.set('authorization', `Bearer ${token}`)
       }
-      return headers;
+      return headers
     },
   }),
   endpoints: (builder) => ({
@@ -38,16 +38,22 @@ export const matchesApi = createApi({
       providesTags: [{ type: 'Matches', id: 'LIST' }],
     }),
 
-    joinMatch: builder.mutation<JoinMatchServerResponse,{code:string}>({
-      query:({code})=>({
-        url:'/join',
-        method:'POST',
-        body:{code}
-    }),
-    invalidatesTags: [{ type: 'Matches', id: 'LIST' }],
-    })
+    joinMatch: builder.mutation<JoinMatchServerResponse, { code: string }>(
+      {
+        query: ({ code }) => ({
+          url: '/join',
+          method: 'POST',
+          body: { code },
+        }),
+        invalidatesTags: [{ type: 'Matches', id: 'LIST' }],
+      }
+    ),
   }),
-  tagTypes: ['Matches']
-});
+  tagTypes: ['Matches'],
+})
 
-export const { useCreateMatchMutation, useFindMatchesByPlayerQuery,useJoinMatchMutation } = matchesApi;
+export const {
+  useCreateMatchMutation,
+  useFindMatchesByPlayerQuery,
+  useJoinMatchMutation,
+} = matchesApi

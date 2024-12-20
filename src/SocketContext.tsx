@@ -5,13 +5,13 @@ import { selectCurrentUser } from './features/auth/authSlice';
 
 const SocketContext = createContext<Socket | null>(null);
 
-export const SocketProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
+export const SocketProvider: React.FC<React.PropsWithChildren<{ object: any }>> = ({ children }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const currentUser = useSelector(selectCurrentUser);
 
     useEffect(() => {
         if (currentUser && currentUser.user) {
-            const newSocket = io('http://localhost:7000', { // Update this line
+            const newSocket = io(import.meta.env.VITE_BACKEND_URL, {
                 query: { userId: currentUser.user }
             });
             setSocket(newSocket);

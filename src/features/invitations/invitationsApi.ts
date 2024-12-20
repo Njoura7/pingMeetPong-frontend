@@ -1,22 +1,31 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { RootState } from '../../app/store';
-import { SendInvitationRequest, SendInvitationResponse, HandleInvitationRequest, HandleInvitationResponse, GetInvitationsResponse } from './types';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { RootState } from '../../app/store'
+import {
+  SendInvitationRequest,
+  SendInvitationResponse,
+  HandleInvitationRequest,
+  HandleInvitationResponse,
+  GetInvitationsResponse,
+} from './types'
 
 export const invitationsApi = createApi({
   reducerPath: 'invitationsApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:7000/api',
+    baseUrl: `${import.meta.env.VITE_BACKEND_URL}/api`,
     prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as RootState).auth.token;
+      const token = (getState() as RootState).auth.token
       if (token) {
-        headers.set('authorization', `Bearer ${token}`);
+        headers.set('authorization', `Bearer ${token}`)
       }
-      return headers;
+      return headers
     },
   }),
   tagTypes: ['Invitations'],
   endpoints: (builder) => ({
-    sendInvitation: builder.mutation<SendInvitationResponse, SendInvitationRequest>({
+    sendInvitation: builder.mutation<
+      SendInvitationResponse,
+      SendInvitationRequest
+    >({
       query: (body) => ({
         url: '/invitations',
         method: 'POST',
@@ -24,7 +33,10 @@ export const invitationsApi = createApi({
       }),
       invalidatesTags: ['Invitations'],
     }),
-    handleInvitation: builder.mutation<HandleInvitationResponse, HandleInvitationRequest>({
+    handleInvitation: builder.mutation<
+      HandleInvitationResponse,
+      HandleInvitationRequest
+    >({
       query: (body) => ({
         url: '/invitations/handle',
         method: 'POST',
@@ -37,6 +49,10 @@ export const invitationsApi = createApi({
       providesTags: ['Invitations'],
     }),
   }),
-});
+})
 
-export const { useSendInvitationMutation, useHandleInvitationMutation, useGetInvitationsQuery } = invitationsApi;
+export const {
+  useSendInvitationMutation,
+  useHandleInvitationMutation,
+  useGetInvitationsQuery,
+} = invitationsApi
