@@ -5,12 +5,12 @@ import { selectCurrentUser } from './features/auth/authSlice';
 
 const SocketContext = createContext<Socket | null>(null);
 
-export const SocketProvider: React.FC<React.PropsWithChildren<{ object: any }>> = ({ children }) => {
+export const SocketProvider: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const currentUser = useSelector(selectCurrentUser);
 
     useEffect(() => {
-        if (currentUser && currentUser.user) {
+        if (currentUser?.user) {
             const newSocket = io(import.meta.env.VITE_BACKEND_URL, {
                 query: { userId: currentUser.user }
             });
