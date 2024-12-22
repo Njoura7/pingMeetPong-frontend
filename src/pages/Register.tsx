@@ -2,14 +2,14 @@ import { useForm } from "react-hook-form";
 import { useRegisterUserMutation } from '../features/auth/authApi';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useNavigate,Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 // components //
 import { AvatarSelectItems } from "../components/AvatarSelectItems";
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Form,FormControl,FormDescription,FormField,FormItem,FormLabel,FormMessage } from "@/components/ui/form"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import {  Select, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from 'react-toastify';
 
 const formSchema = z.object({
@@ -22,7 +22,7 @@ const formSchema = z.object({
   confirmPassword: z.string(),
   avatar: z.string().nonempty({
     message: "Please select an avatar.",
-  
+
   }),
 });
 
@@ -44,13 +44,13 @@ export default function Register() {
     },
   });
 
-  const [registerUser] = useRegisterUserMutation(); 
+  const [registerUser] = useRegisterUserMutation();
   const navigate = useNavigate();
 
   const onSubmit = async (values: FormValues) => {
-    
+
     if (values.password !== values.confirmPassword) {
-      toast.error("Passwords do not match",{
+      toast.error("Passwords do not match", {
         theme: "colored"
       });
       return;
@@ -62,112 +62,116 @@ export default function Register() {
         theme: "colored"
       });
       navigate("/login");
- 
-    } catch (error: unknown) { 
+
+    } catch (error: unknown) {
       // First, check if it's an object with a 'data' property
       if (typeof error === "object" && error !== null && 'data' in error) {
-          const serverError = (error as { data: { message?: string } }).data;
-          console.log("serverError", serverError);
-      if (serverError.message) {
-        toast.error(serverError.message);
-      } 
-    } 
-    else {
-      // Generic fallback error message
-      toast.error("An unknown error occurred");     
+        const serverError = (error as { data: { message?: string } }).data;
+        console.log("serverError", serverError);
+        if (serverError.message) {
+          toast.error(serverError.message);
+        }
+      }
+      else {
+        // Generic fallback error message
+        toast.error("An unknown error occurred");
+      }
     }
-  }
   };
   return (
     <>
-   <h2 className="py-8">Welcome to PING Meet PONG🌏🏓</h2>
-   <Card className="w-full md:w-2/3 lg:w-2/3 xl:w-2/3 2xl:w-1/3 mx-auto py-4">
-   <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-      
-        <FormField
-          control={form.control}
-          name="username"
-          render={({ field }) => (
-            <FormItem className="mx-6">
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter your Username" {...field} autoComplete="username"/>
-              </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem className="mx-6">
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="Enter your Password" {...field} autoComplete="current-password"/>
-              </FormControl>
-              <FormDescription>
-                This will be used to log in to your account.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="confirmPassword"
-          render={({ field }) => (
-            <FormItem className="mx-6">
-              <FormLabel>Confirm Password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="Confirm your Password" {...field} autoComplete="new-password" />
-              </FormControl>
-              <FormDescription>
-                Please enter your password again to confirm.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="avatar"
-          render={({ field }) => (
-            <FormItem className="w-[175px] my-8 mx-auto">
-              <FormLabel>Avatar</FormLabel>
-              <Select onValueChange={(value) => {
-                
-                field.onChange(value)}} 
-                defaultValue={field.value}>
+      <h2 className="py-8">Welcome to PING Meet PONG🌏🏓</h2>
+      <Card className="w-full md:w-2/3 lg:w-2/3 xl:w-2/3 2xl:w-1/3 mx-auto py-4">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem className="mx-6">
+                  <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select your avatar" />
-                      </SelectTrigger>
+                    <Input placeholder="Enter your Username" {...field} autoComplete="username" />
                   </FormControl>
-                  <SelectContent>
-                    <AvatarSelectItems />
-                  </SelectContent>
-              </Select>
-              <FormDescription>
-                Choose your avatar 
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button className="my-5" type="submit">
-          Register
-        </Button> 
-            <Button variant="secondary">
+                  <FormDescription>
+                    This is your public display name.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem className="mx-6">
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="Enter your Password" {...field} autoComplete="current-password" />
+                  </FormControl>
+                  <FormDescription>
+                    This will be used to log in to your account.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem className="mx-6">
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="Confirm your Password" {...field} autoComplete="new-password" />
+                  </FormControl>
+                  <FormDescription>
+                    Please enter your password again to confirm.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="avatar"
+              render={({ field }) => (
+                <FormItem className="w-[175px] my-8 mx-auto">
+                  <FormLabel>Avatar</FormLabel>
+                  <Select onValueChange={(value) => {
+
+                    field.onChange(value)
+                  }}
+                    defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your avatar" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <AvatarSelectItems />
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Choose your avatar
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="flex justify-around">
+              <Button type="submit">
+                Register
+              </Button>
+              <Button variant="secondary">
                 <Link to="/login">Have an account?</Link>
-            </Button>
-      </form>
-    </Form>
-   </Card>
+              </Button>
+            </div>
+
+          </form>
+        </Form>
+      </Card>
     </>
   );
 }
