@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useSendInvitationMutation, useHandleInvitationMutation, useGetInvitationsQuery } from '../features/invitations/invitationsApi';
-import { selectCurrentUser } from '../features/auth/authSlice';
+import { selectCurrentUser } from '@/features/auth/authSlice';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 
@@ -37,7 +37,7 @@ const UserActionButton: React.FC<UserActionButtonProps> = ({ userId }) => {
     try {
       const response = await handleInvitation({
         userId: currentUser.user,
-        invitationId: userId, // Assuming invitationId is the same as userId for simplicity
+        invitationId: userId,
         action
       }).unwrap();
       toast.success(response.message);

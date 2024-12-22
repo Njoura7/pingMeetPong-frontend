@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { createSelector } from '@reduxjs/toolkit'
 import type { RootState } from '../../app/store'
 import { authApi } from './authApi' // Import authApi
 
@@ -11,12 +12,14 @@ interface ServerResponse {
     avatar?: string
   }
 }
+
 const initialState = {
   user: localStorage.getItem('user'),
   username: localStorage.getItem('username'),
   token: localStorage.getItem('token'),
   avatar: localStorage.getItem('avatar'),
 }
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -33,7 +36,6 @@ const authSlice = createSlice({
     builder.addMatcher(
       authApi.endpoints.loginUser.matchFulfilled,
       (state, { payload }: { payload: ServerResponse }) => {
-        // console.log('Message', payload);  // Log the message
         if (payload.data) {
           const { user, username, accessToken, avatar } = payload.data
           state.user = user ?? null
@@ -61,13 +63,17 @@ const authSlice = createSlice({
 
 export const { logOut } = authSlice.actions
 
-// save the state of the user, username, token, and avatar in the store and use it later
-// in the components(we can select just the ones we need in the component)
-export const selectCurrentUser = (state: RootState) => ({
-  user: state.auth.user,
-  username: state.auth.username,
-  token: state.auth.token,
-  avatar: state.auth.avatar,
-})
+// Memoized selector
+const selectAuthState = (state: RootState) => state.auth
+
+export const selectCurrentUser = createSelector(
+  [selectAuthState],
+  (authState) => ({
+    user: authState.user,
+    username: authState.username,
+    token: authState.token,
+    avatar: authState.avatar,
+  })
+)
 
 export default authSlice.reducer

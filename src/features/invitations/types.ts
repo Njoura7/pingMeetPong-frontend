@@ -15,7 +15,9 @@ export interface SendInvitationRequest {
   }
   
   export interface HandleInvitationResponse {
-    message: string;
+    invitationId: string;
+    status: 'accepted' | 'rejected';
+    friendId?: string;
   }
 
 export interface GetInvitationsResponse {

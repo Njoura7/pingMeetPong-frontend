@@ -1,11 +1,11 @@
 import { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectCurrentUser } from '../features/auth/authSlice';
-import { addPendingRequest, selectPendingRequests } from '../features/invitations/invitationsSlice';
-import { useGetInvitationsQuery } from '../features/invitations/invitationsApi';
+import { selectCurrentUser } from '@/features/auth/authSlice';
+import { addPendingRequest, selectPendingRequests } from '@/features/invitations/invitationsSlice';
+import { useGetInvitationsQuery } from '@/features/invitations/invitationsApi';
 import { InvitationItem } from './InvitationItem';
-import SocketContext from '../SocketContext';
-import NotifSvg from '../svgs/NotifSvg';
+import SocketContext from '@/SocketContext';
+import { NotifSvg } from '@/svgs/NotifSvg';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -15,9 +15,6 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// Assuming selectInvitations is meant to select either pendingRequests or sentRequests
-// Adjust according to your actual selector
-
 interface NotificationData {
     senderId: string;
     senderUsername: string;
@@ -26,8 +23,7 @@ interface NotificationData {
 
 export const InvitationsListener = () => {
     const dispatch = useDispatch();
-    const socket = useContext(SocketContext);
-    const [notifications, setNotifications] = useState<NotificationData[]>([]);
+    const { socket, isConnected } = useContext(SocketContext);
     const currentUser = useSelector(selectCurrentUser);
     const pendingRequests = useSelector(selectPendingRequests);
 
@@ -35,47 +31,43 @@ export const InvitationsListener = () => {
         skip: !currentUser?.user,
     });
 
+    // Sync with initial data
     useEffect(() => {
-        if (invitationsData) {
-            console.log('Invitations data received:', invitationsData);
+        if (invitationsData?.pendingRequests) {
             invitationsData.pendingRequests.forEach(invitationId => {
-                if (!pendingRequests.includes(invitationId)) {
-                    dispatch(addPendingRequest(invitationId));
-                }
+                dispatch(addPendingRequest(invitationId));
             });
         }
-    }, [invitationsData, dispatch, pendingRequests]);
+    }, [invitationsData, dispatch]);
 
+    // Handle real-time notifications
     useEffect(() => {
-        if (!socket) return;
+        if (!socket || !isConnected || !currentUser?.user) {
+            return;
+        }
 
         const handleNewNotification = (notificationData: NotificationData) => {
-            console.log('New notification received:', notificationData);
-            setNotifications(prev => [...prev, notificationData]);
+            console.log('Received new notification:', notificationData);
             dispatch(addPendingRequest(notificationData.senderId));
             refetch();
         };
 
-        socket.on('newNotification', handleNewNotification);
-
-        socket.on('connect', () => {
-            console.log('Socket connected in InvitationsListener');
-        });
-
-        socket.on('connect_error', (error) => {
-            console.error('Socket connection error in InvitationsListener:', error);
-        });
+        try {
+            socket.on('newNotification', handleNewNotification);
+        } catch (error) {
+            console.error('Error setting up socket listener:', error);
+        }
 
         return () => {
-            socket.off('newNotification', handleNewNotification);
-            socket.off('connect');
-            socket.off('connect_error');
+            if (socket) {
+                try {
+                    socket.off('newNotification', handleNewNotification);
+                } catch (error) {
+                    console.error('Error cleaning up socket listener:', error);
+                }
+            }
         };
-    }, [socket, dispatch, refetch]);
-
-    const clearNotification = (senderId: string) => {
-        setNotifications(prev => prev.filter(notif => notif.senderId !== senderId));
-    };
+    }, [socket, isConnected, currentUser, dispatch, refetch]);
 
     return (
         <div className="relative mb-4 lg:mb-0">
@@ -83,7 +75,7 @@ export const InvitationsListener = () => {
                 <DropdownMenuTrigger className="focus:outline-none">
                     <div className="relative">
                         <NotifSvg />
-                        {notifications.length > 0 && (
+                        {pendingRequests.length > 0 && (
                             <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
                         )}
                     </div>
@@ -91,10 +83,10 @@ export const InvitationsListener = () => {
                 <DropdownMenuContent>
                     <DropdownMenuLabel>Notifications</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    {notifications.length > 0 ? (
-                        notifications.map((notif, index) => (
-                            <DropdownMenuItem key={index} onSelect={() => clearNotification(notif.senderId)}>
-                                <InvitationItem invitationId={notif.senderId} />
+                    {pendingRequests.length > 0 ? (
+                        pendingRequests.map((invitationId) => (
+                            <DropdownMenuItem key={invitationId}>
+                                <InvitationItem invitationId={invitationId} />
                             </DropdownMenuItem>
                         ))
                     ) : (
@@ -104,4 +96,4 @@ export const InvitationsListener = () => {
             </DropdownMenu>
         </div>
     );
-}
+};
