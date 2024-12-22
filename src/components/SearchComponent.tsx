@@ -40,7 +40,7 @@ const SearchComponent = () => {
   const users = useSelector((state: RootState) => state.search.users);
 
   return (
-    <form className="max-w-lg mx-8" onSubmit={(e) => e.preventDefault()}>
+    <form className="max-w-lg mx-8" autoComplete="off" onSubmit={(e) => e.preventDefault()}>
       <label
         htmlFor="default-search"
         className="mb-2 text-sm font-medium text-gray-200 sr-only dark:text-white"
@@ -51,6 +51,7 @@ const SearchComponent = () => {
         <SearchIconSvg />
         <input
           type="search"
+          autoComplete="off"
           id="default-search"
           className="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           placeholder="Search users..."
