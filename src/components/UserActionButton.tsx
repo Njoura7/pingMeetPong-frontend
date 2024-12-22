@@ -4,9 +4,15 @@ import { useSendInvitationMutation, useHandleInvitationMutation, useGetInvitatio
 import { selectCurrentUser } from '@/features/auth/authSlice';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-
+// todo: to be reconsidered--type with one field ?..
 interface UserActionButtonProps {
   userId: string;
+}
+interface ApiError {
+  data: {
+    message: string;
+  };
+  status: number;
 }
 
 const UserActionButton: React.FC<UserActionButtonProps> = ({ userId }) => {
@@ -23,8 +29,9 @@ const UserActionButton: React.FC<UserActionButtonProps> = ({ userId }) => {
     try {
       const response = await sendInvitation({ senderId: currentUser.user, recipientId: userId }).unwrap();
       toast.success(response.message);
-    } catch (error: any) {
-      toast.error(error.data?.message || 'Failed to send invitation');
+    } catch (error) {
+      const err = error as ApiError;
+      toast.error(err.data?.message || 'Failed to send invitation');
     }
   };
 
@@ -41,9 +48,11 @@ const UserActionButton: React.FC<UserActionButtonProps> = ({ userId }) => {
         action
       }).unwrap();
       toast.success(response.message);
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as ApiError;
+
       console.error(`Error ${action}ing invitation:`, error);
-      toast.error(error.data?.message || `Failed to ${action} invitation`);
+      toast.error(err.data?.message || `Failed to ${action} invitation`);
     }
   };
 

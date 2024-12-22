@@ -26,6 +26,12 @@ interface FormValues {
   username: string;
   password: string;
 }
+interface ApiError {
+  data: {
+    message: string;
+  };
+  status: number;
+}
 
 export default function Login() {
   const form = useForm({
@@ -50,9 +56,9 @@ export default function Login() {
       navigate("/dashboard");
 
       //! to be considered
-    } catch (error: any) {
-      // console.log(error.data)
-      toast.error(error.data.message)
+    } catch (error) {
+      const err = error as ApiError;
+      toast.error(err.data?.message || 'An error occurred');
     }
   };
 
