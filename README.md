@@ -50,6 +50,8 @@ Install NPM packages
 npm install
 ```
 
+We also need to create a cluster for our MongoDB, check the backend repo
+
 Run on localhost
 
 ```sh
