@@ -15,7 +15,7 @@ const Dashboard = () => {
   const { user: userId } = useSelector(selectCurrentUser);
 
 
-  
+
 
   return (
     <SocketProvider>
@@ -34,19 +34,13 @@ const Dashboard = () => {
             <JoinMatchDialog />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
               <Card className="col-span-2 p-4">
-                <h2 className="text-lg font-semibold mb-4 flex items-center">
-                  <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <circle cx="12" cy="12" r="10" strokeWidth="2"/>
-                    <path strokeWidth="2" d="M12 6v6l4 2"/>
-                  </svg>
-                  Upcoming Matches
-                </h2>
                 <UpcomingMatches playerId={userId} />
               </Card>
 
               <Card className="p-4">
-             <RecentMatches/>
+                <RecentMatches />
               </Card>
             </div>
           </main>

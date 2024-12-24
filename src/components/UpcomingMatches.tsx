@@ -16,6 +16,7 @@ import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/features/auth/authSlice';
 import { toast } from 'react-toastify';
 import { Button } from "@/components/ui/button";
+import { CalendarDays } from "lucide-react";
 
 interface UpcomingMatchesProps {
   playerId: string | null | undefined;
@@ -44,7 +45,7 @@ const UpcomingMatches = ({ playerId }: UpcomingMatchesProps) => {
     });
 
   const canEditScore = (match: Match) => {
-    if(currentUserId){
+    if (currentUserId) {
       return match.players.includes(currentUserId) || match.owner === currentUserId;
     }
     return false;
@@ -58,7 +59,7 @@ const UpcomingMatches = ({ playerId }: UpcomingMatchesProps) => {
       });
       return false;
     }
-    
+
     const [score1, score2] = score.split('-').map(Number);
     if (score1 > 30 || score2 > 30) {
       toast.error("Individual scores should not exceed 30", {
@@ -66,7 +67,7 @@ const UpcomingMatches = ({ playerId }: UpcomingMatchesProps) => {
       });
       return false;
     }
-    
+
     return true;
   };
 
@@ -114,82 +115,92 @@ const UpcomingMatches = ({ playerId }: UpcomingMatchesProps) => {
   };
 
   return (
-    <ScrollArea className="h-[25rem] w-full rounded-md border">
-      <div className="p-4">
-        <Table>
-          <TableCaption>Upcoming Matches</TableCaption>
-          <TableHeader>
-            <TableRow className='flex'>
-              <TableHead className="text-left w-1/5">Name</TableHead>
-              <TableHead className='w-1/5'>Code</TableHead>
-              <TableHead className='w-1/5'>Place</TableHead>
-              <TableHead className='w-1/5'>Score</TableHead>
-              <TableHead className="text-right w-1/5">Date</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {upcomingMatches.map((match: Match) => {
-              const date = match.date instanceof Date ? match.date : new Date(match.date);
-              const isParticipant = canEditScore(match);
-              
-              return (
-                <TableRow key={match._id} className='flex'>
-                  <TableCell className='text-left w-1/5'>{match.name}</TableCell>
-                  <TableCell className='text-left w-1/5'>{match.code}</TableCell>
-                  <TableCell className='text-left w-1/5'>{match.place}</TableCell>
-                  <TableCell className='text-left w-1/5'>
-                    {editingScore === match._id ? (
-                      <div className="flex gap-2">
-                        <Input
-                          type="text"
-                          value={scoreValue}
-                          onChange={(e) => setScoreValue(e.target.value)}
-                          placeholder="21-19"
-                          className="w-20"
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              handleScoreSubmit(match._id);
+    <>
+      <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+        <CalendarDays className="h-5 w-5 text-primary" />
+        Upcoming Matches
+      </h2>
+      <ScrollArea className="h-[calc(100vh-15rem)] sm:h-[25rem] md:h-[30rem] lg:h-[35rem] w-full rounded-md border">
+        <div className="p-4">
+          <Table>
+            <TableCaption className="mt-4">
+              {upcomingMatches.length === 0 ? "No upcoming matches" : "Your upcoming matches"}
+            </TableCaption>
+            <TableHeader>
+              <TableRow className='flex'>
+                <TableHead className="text-left w-1/5">Name</TableHead>
+                <TableHead className='hidden sm:table-cell w-1/5'>Code</TableHead>
+                <TableHead className='hidden md:table-cell w-1/5'>Place</TableHead>
+                <TableHead className='w-1/5'>Score</TableHead>
+                <TableHead className="text-right w-1/5">Date</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {upcomingMatches.map((match: Match) => {
+                const date = match.date instanceof Date ? match.date : new Date(match.date);
+                const isParticipant = canEditScore(match);
+
+                return (
+                  <TableRow key={match._id} className='flex hover:bg-accent/50 transition-colors'>
+                    <TableCell className='text-left w-1/5'>{match.name}</TableCell>
+                    <TableCell className='hidden sm:table-cell w-1/5'>{match.code}</TableCell>
+                    <TableCell className='hidden md:table-cell w-1/5'>{match.place}</TableCell>
+                    <TableCell className='text-left w-1/5'>
+                      {editingScore === match._id ? (
+                        <div className="flex gap-2">
+                          <Input
+                            type="text"
+                            value={scoreValue}
+                            onChange={(e) => setScoreValue(e.target.value)}
+                            placeholder="21-19"
+                            className="w-20"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                handleScoreSubmit(match._id);
+                              }
+                            }}
+                          />
+                          <Button
+                            onClick={() => handleScoreSubmit(match._id)}
+                            size="sm"
+                            className="px-2 py-1"
+                          >
+                            Save
+                          </Button>
+                        </div>
+                      ) : (
+                        <div
+                          className={`${isParticipant ? 'cursor-pointer hover:text-primary flex items-center gap-2' : ''}`}
+                          onClick={() => {
+                            if (isParticipant) {
+                              setEditingScore(match._id);
+                              setScoreValue(match.score || '');
                             }
                           }}
-                        />
-                        <Button
-                          onClick={() => handleScoreSubmit(match._id)}
-                          size="sm"
-                          className="px-2 py-1"
                         >
-                          Save
-                        </Button>
-                      </div>
-                    ) : (
-                      <div
-                        className={`${isParticipant ? 'cursor-pointer hover:text-primary flex items-center gap-2' : ''}`}
-                        onClick={() => {
-                          if (isParticipant) {
-                            setEditingScore(match._id);
-                            setScoreValue(match.score || '');
-                          }
-                        }}
-                      >
-                        {isParticipant && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 px-2"
-                          >
-                            Add Score
-                          </Button>
-                        )}
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right w-1/5">{date.toLocaleDateString()}</TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
-    </ScrollArea>
+                          {isParticipant && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2"
+                            >
+                              Add Score
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right w-1/5">
+                      {date.toLocaleDateString()}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      </ScrollArea>
+    </>
   );
 };
 

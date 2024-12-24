@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import {  selectCurrentUser  } from '../features/auth/authSlice' 
+import {  selectCurrentUser  } from '@/features/auth/authSlice' 
 import { useSelector } from 'react-redux'
 
 import {  Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -31,7 +31,7 @@ export const ProfileButton = () => {
     <div>
      <DropdownMenu>
      <DropdownMenuTrigger asChild>  
-        <Avatar onClick={handleProfileClick} className="w-8 h-8 rounded-full">
+        <Avatar className="w-8 h-8 rounded-full">
           <AvatarImage src={avatar||undefined} alt="avatar" className="w-full h-full object-cover rounded-full" />
           <AvatarFallback className="w-full h-full object-cover rounded-full bg-gray-700 text-gray-300">X</AvatarFallback>
         </Avatar>
@@ -41,7 +41,7 @@ export const ProfileButton = () => {
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={handleProfileClick} >
             Profile
           </DropdownMenuItem>
           <DropdownMenuItem>
