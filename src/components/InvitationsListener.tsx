@@ -70,7 +70,7 @@ export const InvitationsListener = () => {
     }, [socket, isConnected, currentUser, dispatch, refetch]);
 
     return (
-        <div className="relative mb-4 lg:mb-0">
+        <div className="relative lg:mb-0">
             <DropdownMenu>
                 <DropdownMenuTrigger className="focus:outline-none">
                     <div className="relative">

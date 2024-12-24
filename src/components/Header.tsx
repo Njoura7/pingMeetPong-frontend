@@ -14,13 +14,14 @@ const Header = () => {
             <span className="text-xl font-semibold text-purple-600">PingMeetPong</span>
           </div>
         </div>
-        <div className="flex items-center space-x-4">
-          <InvitationsListener />
-          {/* User section */}
-          <div className="flex items-center space-x-2 ml-2">
-            <ProfileButton/>
-          </div>
-        </div>
+        <div className="flex items-center justify-center space-x-4"> 
+    <div className="flex items-center space-x-2"> 
+        <InvitationsListener /> 
+    </div>
+    <div className="flex items-center space-x-2"> 
+        <ProfileButton /> 
+    </div>
+</div>
       </div>
     </header>
   )
