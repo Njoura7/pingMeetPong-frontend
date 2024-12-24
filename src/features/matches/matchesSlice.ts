@@ -59,10 +59,7 @@ const matchesSlice = createSlice({
         (state, { payload }: { payload: ScoreUpdateResponse }) => {
           const index = state.matches.findIndex((match) => match._id === payload.data._id);
           if (index !== -1) {
-            state.matches[index] = {
-              ...state.matches[index],
-              score: payload.data.score
-            };
+            state.matches[index] = payload.data;
           }
         }
       );

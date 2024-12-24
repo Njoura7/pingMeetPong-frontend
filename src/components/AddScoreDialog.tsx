@@ -10,6 +10,37 @@ import { Input } from "@/components/ui/input";
 import { Match } from "@/types";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { useGetUserByIdQuery } from '@/features/users/usersApi';
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+
+interface PlayerBadgeProps {
+  playerId: string;
+  matchOwnerId: string;
+}
+
+const PlayerBadge = ({ playerId, matchOwnerId }: PlayerBadgeProps) => {
+  const { data: user } = useGetUserByIdQuery(playerId);
+  const isOwner = playerId === matchOwnerId;
+  
+  return (
+    <Badge 
+      variant={isOwner ? "default" : "secondary"}
+      className="flex items-center gap-2 py-1 px-2"
+    >
+      <Avatar className="h-6 w-6">
+        <AvatarImage src={user?.avatar || undefined} alt={user?.username} />
+        <AvatarFallback className="text-xs">
+          {user?.username?.charAt(0).toUpperCase() || 'X'}
+        </AvatarFallback>
+      </Avatar>
+      <span className="text-sm">{user?.username || 'Loading...'}</span>
+      {isOwner && (
+        <span className="text-xs opacity-75">(Organizer)</span>
+      )}
+    </Badge>
+  );
+};
 
 interface AddScoreDialogProps {
   match: Match;
@@ -95,10 +126,22 @@ export function AddScoreDialog({ match, onScoreSubmit, isParticipant, open, onOp
               </div>
             </div>
           </div>
-          <div className="text-sm text-muted-foreground">
-            <p>Match Code: {match.code}</p>
-            <p>Location: {match.place}</p>
-            <p>Date: {new Date(match.date).toLocaleDateString()}</p>
+          <div className="space-y-3">
+            <div className="text-sm font-medium">Players:</div>
+            <div className="flex flex-wrap gap-2">
+              {match.players.map((playerId) => (
+                <PlayerBadge 
+                  key={playerId} 
+                  playerId={playerId}
+                  matchOwnerId={match.owner}
+                />
+              ))}
+            </div>
+            <div className="text-sm text-muted-foreground mt-4">
+              <p>Match Code: {match.code}</p>
+              <p>Location: {match.place}</p>
+              <p>Date: {new Date(match.date).toLocaleDateString()}</p>
+            </div>
           </div>
         </div>
       </DialogContent>

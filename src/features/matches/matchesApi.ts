@@ -40,18 +40,35 @@ export const matchesApi = createApi({
     findMatchesByPlayer: builder.query<ServerResponse, string>({
       query: (playerId) => `/player/${playerId}`,
       providesTags: [{ type: 'Matches', id: 'LIST' }],
+      transformResponse: (response: ServerResponse) => ({
+        ...response,
+        data: response.data.map(match => ({
+          ...match,
+          // Ensure owner is included in players if not already present
+          players: match.owner && !match.players.includes(match.owner) 
+            ? [match.owner, ...match.players]
+            : match.players
+        }))
+      })
     }),
-
-    joinMatch: builder.mutation<JoinMatchServerResponse, { code: string }>(
-      {
-        query: ({ code }) => ({
-          url: '/join',
-          method: 'POST',
-          body: { code },
-        }),
-        invalidatesTags: [{ type: 'Matches', id: 'LIST' }],
-      }
-    ),
+    joinMatch: builder.mutation<JoinMatchServerResponse, { code: string }>({
+      query: ({ code }) => ({
+        url: '/join',
+        method: 'POST',
+        body: { code },
+      }),
+      transformResponse: (response: JoinMatchServerResponse) => ({
+        ...response,
+        data: {
+          ...response.data,
+          // Ensure owner is included in players if not already present
+          players: response.data.owner && !response.data.players.includes(response.data.owner)
+            ? [response.data.owner, ...response.data.players]
+            : response.data.players
+        }
+      }),
+      invalidatesTags: [{ type: 'Matches', id: 'LIST' }],
+    }),
     addMatchScore: builder.mutation<ScoreUpdateResponse, { matchId: string; score: string }>({
       query: ({ matchId, score }) => ({
         url: '/score',
@@ -61,7 +78,16 @@ export const matchesApi = createApi({
           'Content-Type': 'application/json',
         },
       }),
-      transformResponse: (response: ScoreUpdateResponse) => response,
+      transformResponse: (response: ScoreUpdateResponse) => ({
+        ...response,
+        data: {
+          ...response.data,
+          // Ensure owner is included in players if not already present
+          players: response.data.owner && !response.data.players.includes(response.data.owner)
+            ? [response.data.owner, ...response.data.players]
+            : response.data.players
+        }
+      }),
       invalidatesTags: [{ type: 'Matches', id: 'LIST' }],
     }),
   }),

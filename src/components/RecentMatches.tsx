@@ -1,25 +1,40 @@
 import { useSelector } from 'react-redux'
-import { selectCurrentUser } from '../features/auth/authSlice'
-import { useFindMatchesByPlayerQuery, useAddMatchScoreMutation } from '../features/matches/matchesApi'
-import { useGetUserByIdQuery } from '../features/users/usersApi'
+import { selectCurrentUser } from '@/features/auth/authSlice'
+import { useFindMatchesByPlayerQuery, useAddMatchScoreMutation } from '@/features/matches/matchesApi'
+import { useGetUserByIdQuery } from '@/features/users/usersApi'
 import { Match } from '@/types'
 import { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { toast } from 'react-toastify';
 import { Button } from "@/components/ui/button";
-import { PencilIcon, TrophyIcon, UserIcon } from "lucide-react";
+import { PencilIcon, TrophyIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
-const PlayerBadge = ({ playerId, isCurrentUser }: { playerId: string, isCurrentUser: boolean }) => {
+interface PlayerBadgeProps {
+  playerId: string;
+  matchOwnerId: string;
+}
+
+const PlayerBadge = ({ playerId, matchOwnerId }: PlayerBadgeProps) => {
   const { data: user } = useGetUserByIdQuery(playerId);
+  const isOwner = playerId === matchOwnerId;
   
   return (
     <Badge 
-      variant={isCurrentUser ? "default" : "secondary"}
-      className="flex items-center gap-1"
+      variant={isOwner ? "default" : "secondary"}
+      className="flex items-center gap-2 py-1 px-2"
     >
-      <UserIcon className="h-3 w-3" />
-      <span>{user?.username || 'Loading...'}</span>
+      <Avatar className="h-6 w-6">
+        <AvatarImage src={user?.avatar || undefined} alt={user?.username} />
+        <AvatarFallback className="text-xs">
+          {user?.username?.charAt(0).toUpperCase() || 'X'}
+        </AvatarFallback>
+      </Avatar>
+      <span className="text-sm">{user?.username || 'Loading...'}</span>
+      {isOwner && (
+        <span className="text-xs opacity-75">(Organizer)</span>
+      )}
     </Badge>
   );
 };
@@ -182,7 +197,7 @@ const RecentMatches = () => {
                     <PlayerBadge 
                       key={playerId} 
                       playerId={playerId}
-                      isCurrentUser={playerId === userId}
+                      matchOwnerId={match.owner}
                     />
                   ))}
                 </div>
