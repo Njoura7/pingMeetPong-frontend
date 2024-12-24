@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { toast } from 'react-toastify';
 import { Button } from "@/components/ui/button";
-import { PencilIcon } from "lucide-react";
+import { PencilIcon, TrophyIcon } from "lucide-react";
 
 const RecentMatches = () => {
   const { user: userId } = useSelector(selectCurrentUser);
@@ -52,23 +52,7 @@ const RecentMatches = () => {
     return true;
   };
 
-  const formatDate = (date: Date) => {
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 1) {
-      return 'Yesterday';
-    } else if (diffDays <= 7) {
-      return `${diffDays} days ago`;
-    } else {
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
-    }
-  };
 
   const handleScoreSubmit = async (matchId: string | undefined) => {
     if (!matchId) {
@@ -119,16 +103,19 @@ const RecentMatches = () => {
       <div className="space-y-4">
         {recentMatches?.length ? (
           recentMatches.map((match: Match) => {
-            const date = match.date instanceof Date ? match.date : new Date(match.date);
             const isParticipant = canEditScore(match);
 
             return (
               <div key={match._id} className="flex items-center justify-between p-2 hover:bg-accent rounded">
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-full bg-primary" />
+                  <div className="w-8 h-8 flex items-center justify-center text-primary">
+                    <TrophyIcon className="h-6 w-6" />
+                  </div>
                   <div>
                     <p className="font-medium">{match.name}</p>
-                    <p className="text-sm text-muted-foreground">{formatDate(date)}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(match.date).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
