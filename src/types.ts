@@ -4,6 +4,9 @@ export interface Match {
     name: string;
     place: string;
     date: Date;
+    score?: string;
+    owner: string;
+    players: string[];
   }
 
   export interface User {

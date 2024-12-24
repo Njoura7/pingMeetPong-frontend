@@ -10,6 +10,10 @@ interface JoinMatchServerResponse {
   message: string
   data: Match // Single Match object
 }
+interface ScoreUpdateResponse {
+  message: string
+  data: Match
+}
 
 export const matchesApi = createApi({
   reducerPath: 'matchesApi',
@@ -48,6 +52,18 @@ export const matchesApi = createApi({
         invalidatesTags: [{ type: 'Matches', id: 'LIST' }],
       }
     ),
+    addMatchScore: builder.mutation<ScoreUpdateResponse, { matchId: string; score: string }>({
+      query: ({ matchId, score }) => ({
+        url: '/score',
+        method: 'POST',
+        body: { matchId, score },
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }),
+      transformResponse: (response: ScoreUpdateResponse) => response,
+      invalidatesTags: [{ type: 'Matches', id: 'LIST' }],
+    }),
   }),
   tagTypes: ['Matches'],
 })
@@ -56,4 +72,5 @@ export const {
   useCreateMatchMutation,
   useFindMatchesByPlayerQuery,
   useJoinMatchMutation,
+  useAddMatchScoreMutation,
 } = matchesApi
