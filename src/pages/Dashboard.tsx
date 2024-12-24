@@ -4,6 +4,9 @@ import { SocketProvider } from '../SocketContext'
 import DisplayMatches from '../components/DisplayMatches'
 import Header from '../components/Header'
 import { Card } from "@/components/ui/card"
+import { DateProvider } from '@/components/DateContext'
+import { CreateMatchDialog } from '@/components/CreateMatchDialog'
+import { JoinMatchDialog } from '@/components/JoinMatchDialog'
 
 const Dashboard = () => {
   const { user: userId } = useSelector(selectCurrentUser);
@@ -36,7 +39,13 @@ const Dashboard = () => {
                 </Card>
               ))}
             </div> */}
+             {/* <div className="flex items-center space-x-2"> */}
 
+            <DateProvider>
+          <CreateMatchDialog />
+        </DateProvider>
+        <JoinMatchDialog />
+             {/* </div> */}
             {/* Main Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Upcoming Matches Section */}

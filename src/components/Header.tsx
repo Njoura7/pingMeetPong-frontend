@@ -1,30 +1,42 @@
-import { CreateMatchDialog } from './CreateMatchDialog';
-import { DateProvider } from './DateContext';
-import { JoinMatchDialog } from './JoinMatchDialog';
-import { ProfileButton } from './ProfileButton';
+
 import { LogoutButton } from './LogoutButton';
 import { InvitationsListener } from './InvitationsListener';
 import SearchComponent from './SearchComponent'
 
+
 const Header = () => {
-
   return (
-    <header className="p-4 text-white flex flex-col lg:flex-row justify-between items-center">
-      <div className="flex flex-col lg:flex-row items-center">
-        <div className="w-24 h-24 flex items-center justify-center mb-4 lg:mb-0 lg:mr-4">
-          <img className="w-full h-full object-cover" src="/pingMeetpong-logo.png" alt="Logo" />
+    <header className="border-b bg-background">
+      <div className="flex h-16 items-center px-4 justify-between">
+        {/* Left section with logo and brand */}
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            <img className="h-8 w-8" src="/pingMeetpong-logo.png" alt="Logo" />
+            <span className="text-xl font-semibold text-purple-600">PingMeetPong</span>
+          </div>
+          
+         
         </div>
-        <InvitationsListener />
-        <SearchComponent />
-      </div>
 
-      <div className="flex flex-col lg:flex-row items-center">
-        <DateProvider>
-          <CreateMatchDialog />
-        </DateProvider>
-        <JoinMatchDialog />
-        <ProfileButton />
-        <LogoutButton />
+        {/* Center section with search */}
+        <div className="flex-1 px-4 max-w-2xl mx-auto">
+          <SearchComponent />
+        </div>
+
+        {/* Right section with actions */}
+        <div className="flex items-center space-x-4">
+          <InvitationsListener />
+          
+      
+
+          {/* User section */}
+          <div className="flex items-center space-x-2 ml-2">
+            <div className="h-8 w-8 rounded-full bg-purple-600 flex items-center justify-center text-white">
+              JD
+            </div>
+            <LogoutButton />
+          </div>
+        </div>
       </div>
     </header>
   )

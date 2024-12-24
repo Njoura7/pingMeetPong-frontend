@@ -78,7 +78,7 @@ export function CreateMatchDialog() {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="outline" className="font-bold py-2 px-4 rounded mb-4">
+                <Button className="bg-purple-600 text-white hover:bg-purple-700">
                     Create Match
                 </Button>
             </DialogTrigger>

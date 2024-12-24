@@ -64,7 +64,7 @@ export function JoinMatchDialog() {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button  className="font-bold py-2 px-4 rounded mb-4">
+                <Button  variant="secondary" className="m-4">
                     Join a Match
                 </Button>
             </DialogTrigger>
