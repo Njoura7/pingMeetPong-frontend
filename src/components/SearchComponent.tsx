@@ -40,44 +40,49 @@ const SearchComponent = () => {
   const users = useSelector((state: RootState) => state.search.users);
 
   return (
-    <form className="max-w-lg mx-8" autoComplete="off" onSubmit={(e) => e.preventDefault()}>
-      <label
-        htmlFor="default-search"
-        className="mb-2 text-sm font-medium text-gray-200 sr-only dark:text-white"
-      >
-        Search
-      </label>
-      <div className="flex relative w-full rounded-lg overflow-hidden">
-        <SearchIconSvg />
+    <div className="relative w-full max-w-xl">
+      <div className="relative">
+        {/* Search Input with Icon */}
+        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 ">
+          <SearchIconSvg />
+        </div>
         <input
           type="search"
           autoComplete="off"
-          id="default-search"
-          className="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          placeholder="Search users..."
-          required
+          placeholder="Search players, tournaments..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ paddingLeft: '2.5rem' }}
+          className="w-full h-10 pl-20 pr-4 py-2 text-sm bg-background border border-input rounded-md 
+                     focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent
+                     placeholder:text-muted-foreground"
         />
       </div>
-      <div className="mt-4 w-full max-h-60 overflow-auto">
-        {users.map((user) => (
-          <div
-            key={user._id}
-            onClick={() => handleUserClick(user._id)}
-            className="cursor-pointer flex justify-evenly items-center p-2 bg-gray-800 hover:bg-gray-500"
-          >
-            <h2>{user.username}</h2>
-            <img
-              src={user.avatar}
-              alt={user.username}
-              className="w-12 h-12 rounded-full"
-            />
+
+      {/* Search Results Dropdown */}
+      {users.length > 0 && searchTerm && (
+        <div className="absolute mt-2 w-full bg-background border border-border rounded-md shadow-lg overflow-hidden z-50">
+          <div className="max-h-[300px] overflow-y-auto">
+            {users.map((user) => (
+              <div
+                key={user._id}
+                onClick={() => handleUserClick(user._id)}
+                className="flex items-center gap-3 p-3 hover:bg-accent cursor-pointer transition-colors"
+              >
+                <img
+                  src={user.avatar}
+                  alt={user.username}
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">{user.username}</span>
+                  {/* Add additional user info if needed */}
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-    </form>
+        </div>
+      )}
+    </div>
   );
 };
 
