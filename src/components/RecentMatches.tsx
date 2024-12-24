@@ -1,12 +1,28 @@
 import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '../features/auth/authSlice'
 import { useFindMatchesByPlayerQuery, useAddMatchScoreMutation } from '../features/matches/matchesApi'
+import { useGetUserByIdQuery } from '../features/users/usersApi'
 import { Match } from '@/types'
 import { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { toast } from 'react-toastify';
 import { Button } from "@/components/ui/button";
-import { PencilIcon, TrophyIcon } from "lucide-react";
+import { PencilIcon, TrophyIcon, UserIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+
+const PlayerBadge = ({ playerId, isCurrentUser }: { playerId: string, isCurrentUser: boolean }) => {
+  const { data: user } = useGetUserByIdQuery(playerId);
+  
+  return (
+    <Badge 
+      variant={isCurrentUser ? "default" : "secondary"}
+      className="flex items-center gap-1"
+    >
+      <UserIcon className="h-3 w-3" />
+      <span>{user?.username || 'Loading...'}</span>
+    </Badge>
+  );
+};
 
 const RecentMatches = () => {
   const { user: userId } = useSelector(selectCurrentUser);
@@ -106,58 +122,69 @@ const RecentMatches = () => {
             const isParticipant = canEditScore(match);
 
             return (
-              <div key={match._id} className="flex items-center justify-between p-2 hover:bg-accent rounded">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 flex items-center justify-center text-primary">
-                    <TrophyIcon className="h-6 w-6" />
+              <div key={match._id} className="flex flex-col p-3 hover:bg-accent rounded border border-border">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 flex items-center justify-center text-primary">
+                      <TrophyIcon className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <p className="font-medium">{match.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(match.date).toLocaleDateString()}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium">{match.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(match.date).toLocaleDateString()}
-                    </p>
+                  <div className="flex items-center gap-2">
+                    {editingScore === match._id ? (
+                      <div className="flex gap-2">
+                        <Input
+                          type="text"
+                          value={scoreValue}
+                          onChange={(e) => setScoreValue(e.target.value)}
+                          placeholder="21-19"
+                          className="w-20"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              handleScoreSubmit(match._id);
+                            }
+                          }}
+                        />
+                        <Button
+                          onClick={() => handleScoreSubmit(match._id)}
+                          size="sm"
+                        >
+                          Save
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <span className="text-green-500 font-semibold">{match.score}</span>
+                        {isParticipant && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0"
+                            onClick={() => {
+                              setEditingScore(match._id);
+                              setScoreValue(match.score || '');
+                            }}
+                          >
+                            <PencilIcon className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {editingScore === match._id ? (
-                    <div className="flex gap-2">
-                      <Input
-                        type="text"
-                        value={scoreValue}
-                        onChange={(e) => setScoreValue(e.target.value)}
-                        placeholder="21-19"
-                        className="w-20"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            handleScoreSubmit(match._id);
-                          }
-                        }}
-                      />
-                      <Button
-                        onClick={() => handleScoreSubmit(match._id)}
-                        size="sm"
-                      >
-                        Save
-                      </Button>
-                    </div>
-                  ) : (
-                    <>
-                      <span className="text-green-500">{match.score}</span>
-                      {isParticipant && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 w-6 p-0"
-                          onClick={() => {
-                            setEditingScore(match._id);
-                            setScoreValue(match.score || '');
-                          }}
-                        >
-                          <PencilIcon className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </>
-                  )}
+                <div className="flex gap-2 flex-wrap mt-1">
+                  {match.players.map((playerId) => (
+                    <PlayerBadge 
+                      key={playerId} 
+                      playerId={playerId}
+                      isCurrentUser={playerId === userId}
+                    />
+                  ))}
                 </div>
               </div>
             );
