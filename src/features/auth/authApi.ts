@@ -1,15 +1,28 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-interface ServerResponse {
-  message: string
-  //! to be considered
-  data: any
+// Registration response type
+interface RegisterResponse {
+  message: string;
+}
+
+// Login response type
+interface LoginResponse {
+  message: string;
+  data: {
+    user: string;
+    accessToken: string;
+    username: string;
+    avatar: string;
+    friends: string[];
+    sentRequests: string[];
+    pendingRequests: string[];
+  }
 }
 
 interface Credentials {
-  username: string
-  password: string
-  avatar?: string
+  username: string;
+  password: string;
+  avatar?: string;
 }
 
 export const authApi = createApi({
@@ -21,25 +34,24 @@ export const authApi = createApi({
       if (token) {
         headers.set('authorization', `Bearer ${token}`)
       }
+      headers.set('Content-Type', 'application/json')
       return headers
     },
   }),
   endpoints: (builder) => ({
-    registerUser: builder.mutation<ServerResponse, Credentials>({
+    registerUser: builder.mutation<RegisterResponse, Credentials>({
       query: (credentials) => ({
         url: '/register',
         method: 'POST',
         body: credentials,
       }),
-      transformResponse: (response: ServerResponse) => response,
     }),
-    loginUser: builder.mutation<ServerResponse, Credentials>({
+    loginUser: builder.mutation<LoginResponse, Credentials>({
       query: (credentials) => ({
         url: '/login',
         method: 'POST',
         body: credentials,
       }),
-      transformResponse: (response: ServerResponse) => response,
     }),
   }),
 })

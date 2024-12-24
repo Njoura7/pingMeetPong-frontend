@@ -1,23 +1,26 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createSelector } from '@reduxjs/toolkit'
 import type { RootState } from '../../app/store'
-import { authApi } from './authApi' // Import authApi
+import { authApi } from './authApi'
 
-interface ServerResponse {
-  message: string
-  data: {
-    user?: string
-    username?: string
-    accessToken?: string
-    avatar?: string
-  }
+interface AuthState {
+  user: string | null;
+  username: string | null;
+  token: string | null;
+  avatar: string | null;
+  friends: string[];
+  sentRequests: string[];
+  pendingRequests: string[];
 }
 
-const initialState = {
+const initialState: AuthState = {
   user: localStorage.getItem('user'),
   username: localStorage.getItem('username'),
   token: localStorage.getItem('token'),
   avatar: localStorage.getItem('avatar'),
+  friends: [],
+  sentRequests: [],
+  pendingRequests: []
 }
 
 const authSlice = createSlice({
@@ -29,33 +32,29 @@ const authSlice = createSlice({
       state.username = null
       state.token = null
       state.avatar = null
-      localStorage.clear() // Clear all items from local storage
+      state.friends = []
+      state.sentRequests = []
+      state.pendingRequests = []
+      localStorage.clear()
     },
   },
   extraReducers: (builder) => {
     builder.addMatcher(
       authApi.endpoints.loginUser.matchFulfilled,
-      (state, { payload }: { payload: ServerResponse }) => {
-        if (payload.data) {
-          const { user, username, accessToken, avatar } = payload.data
-          state.user = user ?? null
-          state.username = username ?? null
-          state.token = accessToken ?? null
-          state.avatar = avatar ?? null
+      (state, { payload }) => {
+        const { user, username, accessToken, avatar, friends, sentRequests, pendingRequests } = payload.data;
+        state.user = user;
+        state.username = username;
+        state.token = accessToken;
+        state.avatar = avatar;
+        state.friends = friends;
+        state.sentRequests = sentRequests;
+        state.pendingRequests = pendingRequests;
 
-          if (accessToken) {
-            localStorage.setItem('token', accessToken)
-          }
-          if (user) {
-            localStorage.setItem('user', user)
-          }
-          if (username) {
-            localStorage.setItem('username', username)
-          }
-          if (avatar) {
-            localStorage.setItem('avatar', avatar)
-          }
-        }
+        localStorage.setItem('token', accessToken);
+        localStorage.setItem('user', user);
+        localStorage.setItem('username', username);
+        localStorage.setItem('avatar', avatar);
       }
     )
   },
@@ -63,7 +62,6 @@ const authSlice = createSlice({
 
 export const { logOut } = authSlice.actions
 
-// Memoized selector
 const selectAuthState = (state: RootState) => state.auth
 
 export const selectCurrentUser = createSelector(
@@ -73,6 +71,9 @@ export const selectCurrentUser = createSelector(
     username: authState.username,
     token: authState.token,
     avatar: authState.avatar,
+    friends: authState.friends,
+    sentRequests: authState.sentRequests,
+    pendingRequests: authState.pendingRequests,
   })
 )
 
