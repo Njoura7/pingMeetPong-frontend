@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/features/auth/authSlice';
 import { addPendingRequest, selectPendingRequests } from '@/features/invitations/invitationsSlice';
