@@ -1,29 +1,21 @@
 import { useSelector } from 'react-redux'
-import { selectCurrentUser } from '../features/auth/authSlice'
-import { SocketProvider } from '../SocketContext'
-import DisplayMatches from '../components/DisplayMatches'
-import Header from '../components/Header'
+import { selectCurrentUser } from '@/features/auth/authSlice'
+import { SocketProvider } from '@/SocketContext'
+import UpcomingMatches from '@/components/UpcomingMatches'
+import RecentMatches from '@/components/RecentMatches'
+import Header from '@/components/Header'
 import { Card } from "@/components/ui/card"
 import { DateProvider } from '@/components/DateContext'
 import { CreateMatchDialog } from '@/components/CreateMatchDialog'
 import { JoinMatchDialog } from '@/components/JoinMatchDialog'
 import SearchComponent from '@/components/SearchComponent'
-import { useFindMatchesByPlayerQuery } from '../features/matches/matchesApi'
-import { Match } from '@/types'
+
 
 const Dashboard = () => {
   const { user: userId } = useSelector(selectCurrentUser);
-  const { data: matches } = useFindMatchesByPlayerQuery(userId || '');
 
-  // Get recent matches (last 5 matches with scores)
-  const recentMatches = matches?.data
-    ?.filter((match: Match) => match.score)
-    ?.sort((a: Match, b: Match) => {
-      const dateA = a.date instanceof Date ? a.date : new Date(a.date);
-      const dateB = b.date instanceof Date ? b.date : new Date(b.date);
-      return dateB.getTime() - dateA.getTime();
-    })
-    ?.slice(0, 5);
+
+  
 
   return (
     <SocketProvider>
@@ -50,32 +42,11 @@ const Dashboard = () => {
                   </svg>
                   Upcoming Matches
                 </h2>
-                <DisplayMatches playerId={userId} />
+                <UpcomingMatches playerId={userId} />
               </Card>
 
               <Card className="p-4">
-                <h2 className="text-lg font-semibold mb-4">Recent Matches</h2>
-                <div className="space-y-4">
-                  {recentMatches?.length ? (
-                    recentMatches.map((match: Match) => {
-                      const date = match.date instanceof Date ? match.date : new Date(match.date);
-                      return (
-                        <div key={match._id} className="flex items-center justify-between p-2 hover:bg-accent rounded">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 rounded-full bg-primary"/>
-                            <div>
-                              <p className="font-medium">{match.name}</p>
-                              <p className="text-sm text-muted-foreground">{date.toLocaleDateString()}</p>
-                            </div>
-                          </div>
-                          <span className="text-green-500">{match.score}</span>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <p className="text-muted-foreground text-sm">No recent matches with scores</p>
-                  )}
-                </div>
+             <RecentMatches/>
               </Card>
             </div>
           </main>

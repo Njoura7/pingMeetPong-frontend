@@ -1,5 +1,5 @@
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
-import { useCreateMatchMutation } from '../features/matches/matchesApi'
+import { useCreateMatchMutation } from '@/features/matches/matchesApi'
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -34,24 +34,28 @@ const matchFormSchema = z.object({
 });
 
 interface MatchFormValues {
-    _id: string; // Ensure this is always a string
-    code: string; // Change from 'string | undefined' to 'string'
+    _id: string;
+    code: string;
     name: string;
     place: string;
     date: Date;
+    owner: string;
+    players: string[];
 }
 
 
 export function CreateMatchDialog() {
-    const { date } = useDate(); // Use the date from context
+    const { date } = useDate();
     const form = useForm<MatchFormValues>({
         resolver: zodResolver(matchFormSchema),
         defaultValues: {
-            _id: "", // Provide a default value for _id
-            code: "", // Provide a default value for code
+            _id: "",
+            code: "",
             name: "",
             place: "",
             date: date,
+            owner: "",
+            players: []
         },
     });
     const [createMatch] = useCreateMatchMutation();

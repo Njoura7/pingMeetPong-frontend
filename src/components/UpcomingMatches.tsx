@@ -1,4 +1,4 @@
-import { useFindMatchesByPlayerQuery, useAddMatchScoreMutation } from '../features/matches/matchesApi';
+import { useFindMatchesByPlayerQuery, useAddMatchScoreMutation } from '@/features/matches/matchesApi';
 import { Match } from '@/types';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
@@ -13,14 +13,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { selectCurrentUser } from '../features/auth/authSlice';
+import { selectCurrentUser } from '@/features/auth/authSlice';
 import { toast } from 'react-toastify';
+import { Button } from "@/components/ui/button";
 
-interface DisplayMatchesProps {
+interface UpcomingMatchesProps {
   playerId: string | null | undefined;
 }
 
-const DisplayMatches = ({ playerId }: DisplayMatchesProps) => {
+const UpcomingMatches = ({ playerId }: UpcomingMatchesProps) => {
   const { data: matches } = useFindMatchesByPlayerQuery(playerId || '', {
     skip: !playerId
   });
@@ -33,20 +34,23 @@ const DisplayMatches = ({ playerId }: DisplayMatchesProps) => {
     return <div>Loading...</div>;
   }
 
-  const sortedMatches = [...matches.data].sort((a: Match, b: Match) => {
-    const dateA = a.date instanceof Date ? a.date : new Date(a.date);
-    const dateB = b.date instanceof Date ? b.date : new Date(b.date);
-    return dateB.getTime() - dateA.getTime();
-  });
+  // Filter out matches that already have scores and sort by date
+  const upcomingMatches = [...matches.data]
+    .filter((match: Match) => !match.score) // Only include matches without scores
+    .sort((a: Match, b: Match) => {
+      const dateA = a.date instanceof Date ? a.date : new Date(a.date);
+      const dateB = b.date instanceof Date ? b.date : new Date(b.date);
+      return dateB.getTime() - dateA.getTime();
+    });
 
   const canEditScore = (match: Match) => {
     if(currentUserId){
       return match.players.includes(currentUserId) || match.owner === currentUserId;
     }
+    return false;
   };
 
   const validateScore = (score: string): boolean => {
-    // Example: score should be in format "21-19" or similar
     const scorePattern = /^\d{1,2}-\d{1,2}$/;
     if (!scorePattern.test(score)) {
       toast.error("Score should be in format '21-19'", {
@@ -113,7 +117,7 @@ const DisplayMatches = ({ playerId }: DisplayMatchesProps) => {
     <ScrollArea className="h-[25rem] w-full rounded-md border">
       <div className="p-4">
         <Table>
-          <TableCaption>Your Matches</TableCaption>
+          <TableCaption>Upcoming Matches</TableCaption>
           <TableHeader>
             <TableRow className='flex'>
               <TableHead className="text-left w-1/5">Name</TableHead>
@@ -124,7 +128,7 @@ const DisplayMatches = ({ playerId }: DisplayMatchesProps) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedMatches.map((match: Match) => {
+            {upcomingMatches.map((match: Match) => {
               const date = match.date instanceof Date ? match.date : new Date(match.date);
               const isParticipant = canEditScore(match);
               
@@ -148,16 +152,17 @@ const DisplayMatches = ({ playerId }: DisplayMatchesProps) => {
                             }
                           }}
                         />
-                        <button
+                        <Button
                           onClick={() => handleScoreSubmit(match._id)}
-                          className="px-2 py-1 bg-primary text-primary-foreground rounded-md text-sm"
+                          size="sm"
+                          className="px-2 py-1"
                         >
                           Save
-                        </button>
+                        </Button>
                       </div>
                     ) : (
                       <div
-                        className={`${isParticipant ? 'cursor-pointer hover:text-primary' : ''} ${!match.score ? 'text-muted-foreground' : ''}`}
+                        className={`${isParticipant ? 'cursor-pointer hover:text-primary flex items-center gap-2' : ''}`}
                         onClick={() => {
                           if (isParticipant) {
                             setEditingScore(match._id);
@@ -165,7 +170,15 @@ const DisplayMatches = ({ playerId }: DisplayMatchesProps) => {
                           }
                         }}
                       >
-                        {match.score || (isParticipant ? 'Add score' : 'No score')}
+                        {isParticipant && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 px-2"
+                          >
+                            Add Score
+                          </Button>
+                        )}
                       </div>
                     )}
                   </TableCell>
@@ -180,4 +193,4 @@ const DisplayMatches = ({ playerId }: DisplayMatchesProps) => {
   );
 };
 
-export default DisplayMatches;
+export default UpcomingMatches;
