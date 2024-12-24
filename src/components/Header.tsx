@@ -1,6 +1,6 @@
 
-import { LogoutButton } from './LogoutButton';
 import { InvitationsListener } from './InvitationsListener';
+import { ProfileButton } from './ProfileButton';
 
 
 const Header = () => {
@@ -13,24 +13,12 @@ const Header = () => {
             <img className="h-8 w-8" src="/pingMeetpong-logo.png" alt="Logo" />
             <span className="text-xl font-semibold text-purple-600">PingMeetPong</span>
           </div>
-          
-         
         </div>
-
-      
-
-        {/* Right section with actions */}
         <div className="flex items-center space-x-4">
           <InvitationsListener />
-          
-      
-
           {/* User section */}
           <div className="flex items-center space-x-2 ml-2">
-            <div className="h-8 w-8 rounded-full bg-purple-600 flex items-center justify-center text-white">
-              JD
-            </div>
-            <LogoutButton />
+            <ProfileButton/>
           </div>
         </div>
       </div>
