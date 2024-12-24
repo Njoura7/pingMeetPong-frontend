@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card"
 import { DateProvider } from '@/components/DateContext'
 import { CreateMatchDialog } from '@/components/CreateMatchDialog'
 import { JoinMatchDialog } from '@/components/JoinMatchDialog'
+import SearchComponent from '@/components/SearchComponent'
 
 const Dashboard = () => {
   const { user: userId } = useSelector(selectCurrentUser);
@@ -26,7 +27,10 @@ const Dashboard = () => {
         {userId && (
           <main className="flex-grow p-6">
             <h1 className="text-2xl font-semibold mb-6">Dashboard Overview</h1>
-            
+              {/* Center section with search */}
+        <div className="flex-1 px-4 max-w-2xl mx-auto">
+          <SearchComponent />
+        </div>
             {/* Stats Grid */}
             {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               {stats.map((stat, index) => (

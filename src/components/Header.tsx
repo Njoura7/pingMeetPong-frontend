@@ -1,7 +1,6 @@
 
 import { LogoutButton } from './LogoutButton';
 import { InvitationsListener } from './InvitationsListener';
-import SearchComponent from './SearchComponent'
 
 
 const Header = () => {
@@ -18,10 +17,7 @@ const Header = () => {
          
         </div>
 
-        {/* Center section with search */}
-        <div className="flex-1 px-4 max-w-2xl mx-auto">
-          <SearchComponent />
-        </div>
+      
 
         {/* Right section with actions */}
         <div className="flex items-center space-x-4">
