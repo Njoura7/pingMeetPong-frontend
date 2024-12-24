@@ -3,17 +3,14 @@ import { useLoginUserMutation } from '../features/auth/authApi';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate, Link } from "react-router-dom";
-
+import { Loader2Icon } from "lucide-react";
 
 //components
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-
 import { Input } from "@/components/ui/input"
 import { toast } from 'react-toastify';
-
-
 
 const formSchema = z.object({
   username: z.string().min(2, {
@@ -42,7 +39,7 @@ export default function Login() {
     },
   });
 
-  const [loginUser] = useLoginUserMutation();
+  const [loginUser, { isLoading }] = useLoginUserMutation();
   const navigate = useNavigate();
 
   const onSubmit = async (values: FormValues) => {
@@ -54,13 +51,22 @@ export default function Login() {
         theme: "dark",
       });
       navigate("/dashboard");
-
-      //! to be considered
     } catch (error) {
       const err = error as ApiError;
       toast.error(err.data?.message || 'An error occurred');
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="relative">
+          <Loader2Icon className="w-6 h-6 text-primary animate-spin absolute -bottom-8 left-1/2 transform -translate-x-1/2" />
+        </div>
+        <p className="mt-12 text-muted-foreground">Logging you in...</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -101,7 +107,10 @@ export default function Login() {
               )}
             />
             <div className="flex justify-around">
-              <Button type="submit">
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? (
+                  <Loader2Icon className="w-4 h-4 mr-2 animate-spin" />
+                ) : null}
                 Login
               </Button>
               <Button variant="secondary">

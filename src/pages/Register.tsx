@@ -3,6 +3,8 @@ import { useRegisterUserMutation } from '../features/auth/authApi';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate, Link } from "react-router-dom";
+import { Loader2Icon } from "lucide-react";
+
 // components //
 import { AvatarSelectItems } from "../components/AvatarSelectItems";
 import { Button } from "@/components/ui/button"
@@ -22,7 +24,6 @@ const formSchema = z.object({
   confirmPassword: z.string(),
   avatar: z.string().nonempty({
     message: "Please select an avatar.",
-
   }),
 });
 
@@ -44,11 +45,10 @@ export default function Register() {
     },
   });
 
-  const [registerUser] = useRegisterUserMutation();
+  const [registerUser, { isLoading }] = useRegisterUserMutation();
   const navigate = useNavigate();
 
   const onSubmit = async (values: FormValues) => {
-
     if (values.password !== values.confirmPassword) {
       toast.error("Passwords do not match", {
         theme: "colored"
@@ -57,14 +57,11 @@ export default function Register() {
     }
     try {
       const result = await registerUser(values).unwrap();
-      // Display the success message from the server
       toast.success(result.message, {
         theme: "colored"
       });
       navigate("/login");
-
     } catch (error: unknown) {
-      // First, check if it's an object with a 'data' property
       if (typeof error === "object" && error !== null && 'data' in error) {
         const serverError = (error as { data: { message?: string } }).data;
         console.log("serverError", serverError);
@@ -73,18 +70,29 @@ export default function Register() {
         }
       }
       else {
-        // Generic fallback error message
         toast.error("An unknown error occurred");
       }
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="relative">
+          
+          <Loader2Icon className="w-6 h-6 text-primary animate-spin absolute -bottom-8 left-1/2 transform -translate-x-1/2" />
+        </div>
+        <p className="mt-12 text-muted-foreground">Creating your account...</p>
+      </div>
+    );
+  }
+
   return (
     <>
       <h2 className="py-8">Welcome to PING Meet PONG🌏🏓</h2>
       <Card className="w-full md:w-2/3 lg:w-2/3 xl:w-2/3 2xl:w-1/3 mx-auto py-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-
             <FormField
               control={form.control}
               name="username"
@@ -140,7 +148,6 @@ export default function Register() {
                 <FormItem className="w-[175px] my-8 mx-auto">
                   <FormLabel>Avatar</FormLabel>
                   <Select onValueChange={(value) => {
-
                     field.onChange(value)
                   }}
                     defaultValue={field.value}>
@@ -161,14 +168,16 @@ export default function Register() {
               )}
             />
             <div className="flex justify-around">
-              <Button type="submit">
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? (
+                  <Loader2Icon className="w-4 h-4 mr-2 animate-spin" />
+                ) : null}
                 Register
               </Button>
               <Button variant="secondary">
                 <Link to="/login">Have an account?</Link>
               </Button>
             </div>
-
           </form>
         </Form>
       </Card>
